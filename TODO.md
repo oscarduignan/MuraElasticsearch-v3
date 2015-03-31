@@ -1,0 +1,22 @@
+# stuff left to do
+- DONE fill out elasticsearchclient
+- DONE port tests from old plugin
+    - DONE elasticsearchClient
+    - DONE elasticsearchClientStubbed
+- TODO write tests for contentindexer
+- TODO write tests for siteindexer
+- TODO write tests for utilities
+- DONE write tests for elasticsearchservice
+- TODO write any missing tests for elasticsearchclient
+- TODO write documentation
+- TODO add settings class extensions (just host needed I think)
+- TODO push to github
+- TODO write an example replacement display object for the site search
+- TODO log initiating user when starting an index
+- TODO create interface for reindexing content for sites with react
+- TODO include some bootstrapping stuff (like my ansible setup) or an example mura site with this configured that can just be vagrant up'ed
+- TODO get my ansible playbooks installing the attachment plugin
+- TODO should it be "getContentJSON" or should it just be "get representation for elasticsearch" and then if it's a struct it will be auto serialized anyway?
+- TODO extract out the repeated stuff from contentindexer and siteindexer relating to getting aliases, stick it in elasticsearchservice I think
+- TODO allow overriding siteIndexer.getSiteContent like with the other bits via the contentrenderer
+- TODO add more emit'ed events - cancel / fail / completed in siteIndexStatusService?
