@@ -24,6 +24,20 @@ component accessors=true {
         return datetimeFormatter.format(datetime);
     }
 
+    public function getWriteAliasForSite(required siteID) {
+        return getAliasForSite(siteID, getWriteAliasName(siteID));
+    }
+
+    public function getAliasForSite(required siteID, alias='') {
+        var response = getClientForSite(siteID).getAlias(alias=len(alias) ? alias : siteID, ignore="404");
+
+        return (
+            response.is200()
+                ? structKeyArray(response.toJSON())
+                : []
+        );
+    }
+
     public function getWriteAliasName(required alias) {
         return alias & "_write";
     }
@@ -40,7 +54,7 @@ component accessors=true {
     }
 
     private function getHost(required siteID, defaultValue="localhost:9200") {
-        return getUtilities().getSiteConfig(siteID, "ELASTICSEARCH_HOST", defaultValue);
+        return getUtilities().getSiteConfig(siteID, "elasticsearchHost", defaultValue);
     }
 
 }

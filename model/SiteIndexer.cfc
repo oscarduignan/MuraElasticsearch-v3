@@ -1,4 +1,4 @@
-component accessors=true {
+component accessors=true output=true {
     property name="ElasticsearchService";
     property name="ContentIndexer";
     property name="Utilities";
@@ -7,56 +7,62 @@ component accessors=true {
 
     public function indexSite(required siteID) {
         lock name="elasticIndexSite#siteID#" type="exclusive" timeout="10" {
-            if (currentlyIndexing(siteID)) { return }
+            cancelExistingIndexing(siteID);
 
             var indexID = startIndexing(siteID);
         }
 
-        var $ = getBeanFactory().getBean("MuraScope").init(siteID);
+        try {
+            var $ = getBeanFactory().getBean("MuraScope").init(siteID);
 
-        var newIndex = createIndexForSite(siteID);
+            var newIndex = createIndexForSite(siteID);
 
-        var siteContent = getSiteContent(siteID);
-
-        updateProgress(indexID, {
-            newIndex=newIndex,
-            totalToIndex=siteContent.getRecordCount()
-        });
-
-        for (var i=1; i lte siteContent.pageCount(); i++) {
-            siteContent.setPage(i);
-
-            var updates = [];
-
-            while (siteContent.hasNext()) {
-                var content = siteContent.next();
-
-                if (shouldIndex(content, $)) {
-                    arrayAppend(updates, { "index" = { "_id" = content.getContentID() } });
-                    arrayAppend(updates, getContentJSON(content, $));
-                }
-            }
-
-            bulk(siteID, updates, newIndex, getType());
+            var siteContent = getSiteContent($);
 
             updateProgress(indexID, {
-                totalIndexed=siteContent.currentIndex()
+                newIndex=newIndex,
+                totalToIndex=siteContent.getRecordCount()
             });
 
+            for (var i=1; i lte siteContent.pageCount(); i++) {
+                siteContent.setPage(i);
+
+                var updates = [];
+
+                while (siteContent.hasNext()) {
+                    var content = siteContent.next();
+
+                    if (shouldIndex(content, $)) {
+                        arrayAppend(updates, { "index" = { "_id" = content.getContentID() } });
+                        arrayAppend(updates, getContentJSON(content, $));
+                    }
+                }
+
+                bulk(siteID, updates, newIndex, getType());
+
+                updateProgress(indexID, {
+                    totalIndexed=siteContent.currentIndex()
+                });
+
+                if (indexingCancelled(indexID)) { return; }
+            }
+
+            emit("onIndexSite", { siteID=siteID, newIndex=newIndex });
+
             if (indexingCancelled(indexID)) { return; }
+
+            changeSiteIndex(siteID, newIndex);
+
+            flagIndexingAsCompleted(indexID);
+        } catch(any e) {
+            flagIndexingAsFailed(indexID, e);
+
+            if (isDefined("newIndex")) removeIndexFromWriteAlias(siteID, newIndex);
         }
-
-        emit("onIndexSite", { siteID=siteID, newIndex=newIndex });
-
-        if (indexingCancelled(indexID)) { return; }
-
-        changeSiteIndex(siteID, newIndex);
-
-        completeIndexing(indexID);
     }
 
     public function getIndexConfigJSON(required siteID) {
-        var $ = getBeanFactory("MuraScope").init(siteID);
+        var $ = getBeanFactory().getBean("MuraScope").init(siteID);
 
         if (structKeyExists($, "getElasticsearchIndexConfigJSON")) {
             return $.getElasticsearchIndexConfigJSON();
@@ -144,6 +150,22 @@ component accessors=true {
         return name;
     }
 
+    private function getSiteContent(required $) {
+        if (structKeyExists($, "getElasticsearchContentIterator")) {
+            return $.getElasticsearchContentIterator();
+        } else {
+            return (
+                getBeanFactory()
+                    .getBean("feed")
+                        .setSiteID($.event("siteid"))
+                        .setMaxItems(9999)
+                        .setShowNavOnly(0)
+                    .getIterator()
+                        .setNextN(50)
+            );
+        }
+    }
+
     private function currentlyIndexing(required siteID) {
         return getSiteIndexStatusService().inProgress(siteID);
     }
@@ -152,12 +174,30 @@ component accessors=true {
         return getSiteIndexStatusService().start(siteID);
     }
 
-    private function indexingCancelled(required indexID) {
-        return getSiteIndexStatusService().wasCancelled(indexID);
+    private function cancelExistingIndexing(required siteID) {
+        return getSiteIndexStatusService().cancel(siteID);
     }
 
-    private function completeIndexing(required indexID) {
+    private function flagIndexingAsFailed(required indexID, exception) {
+        var details = {};
+
+        if (isDefined("arguments.exception")) {
+            details["type"]         = exception.type;
+            details["message"]      = exception.message;
+            details["detail"]       = exception.detail;
+            details["extendedInfo"] = exception.extendedInfo;
+            details["code"]         = exception.code;
+        }
+
+        return getSiteIndexStatusService().fail(indexID, details);
+    }
+
+    private function flagIndexingAsCompleted(required indexID) {
         return getSiteIndexStatusService().complete(indexID);
+    }
+
+    private function indexingCancelled(required indexID) {
+        return getSiteIndexStatusService().wasCancelled(indexID);
     }
 
     private function updateProgress(required indexID, required values) {
@@ -180,6 +220,10 @@ component accessors=true {
         return getElasticClient(siteID).bulk(actions, index, type);
     }
 
+    private function removeIndexFromWriteAlias(required siteID, required indexName) {
+        return getElasticClient(siteID).removeAlias(name=getWriteAliasName(siteID), index=indexName, ignore="404");
+    }
+
     private function emit(required event, required context) {
         return getUtilities().emit(event, context);
     }
@@ -189,32 +233,15 @@ component accessors=true {
     }
 
     private function getWriteAlias(required siteID) {
-        return getAlias(siteID, getWriteAliasName(siteID));
+        return getElasticsearchService().getWriteAliasForSite(siteID);
     }
 
-    private function getAlias(required siteID, alias='') {
-        var response = getElasticClient(siteID).getAlias(name=len(alias) ? alias : siteID, ignore="404");
-        return (
-            response.is200()
-                ? structKeyArray(response.toJSON())
-                : []
-        );
+    private function getAlias(required siteID) {
+        return getElasticsearchService().getAliasForSite(siteID);
     }
 
     private function getWriteAliasName(required siteID) {
         return getElasticsearchService().getWriteAliasName(siteID);
-    }
-
-    private function getSiteContent(required siteID) {
-        return (
-            getBeanFactory()
-                .getBean("feed")
-                    .setSiteID(siteID)
-                    .setMaxItems(9999)
-                    .setShowNavOnly(0)
-                .getIterator()
-                    .setNextN(50)
-        );
     }
 
 }

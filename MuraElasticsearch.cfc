@@ -1,10 +1,14 @@
 component accessors=true {
     property name="beanFactory";
-    property name="parentBeanFactory";
 
-    public function init(parentBeanFactory) {
-        if (isDefined("arguments.parentBeanFactory"))
-            setParentBeanFactory(parentBeanFactory);
+    public function init(parentServiceFactory) {
+        setBeanFactory(new vendor.ioc("/MuraElasticsearch/model", {
+            singletonPattern = "(Indexer|Service|Utilities)$"
+        }));
+        
+        if (isDefined("arguments.parentServiceFactory")) {
+            getBeanFactory().setParent(parentServiceFactory);
+        }
     }
 
     public function applyDBUpdates() {
@@ -19,31 +23,16 @@ component accessors=true {
         getBean("ContentIndexer").removeContent(content);
     }
 
-    public function cancelIndexing(required siteID) {
-        getBean("SiteIndexStatusService").cancel(siteID);
-    }
-
     public function indexSite(required siteID) {
         getBean("SiteIndexer").indexSite(siteID);
     }
 
+    public function cancelIndexing(required siteID) {
+        getBean("SiteIndexStatusService").cancel(siteID);
+    }
+
     public function getBean(required name) {
         return getBeanFactory().getBean(name);
-    }
-
-    private function getBeanFactory() {
-        if (not isDefined("beanFactory")) initBeanFactory();
-
-        return beanFactory;
-    }
-
-    private function initBeanfactory() {
-        beanFactory = new vendor.ioc("/MuraElasticsearch/model", {
-            singletonPattern = "(Indexer|Service|Utilities)$"
-        });
-        
-        if (isDefined("variables.parentBeanFactory"))
-            beanFactory.setParent(getParentBeanFactory());
     }
 
 }

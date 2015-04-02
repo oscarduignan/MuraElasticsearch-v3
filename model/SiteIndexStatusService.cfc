@@ -53,8 +53,8 @@ component accessors=true {
         return update(indexID, {status=getStatusCompleted(), stoppedAt=now()});
     }
 
-    function fail(required indexID) {
-        return update(indexID, {status=getStatusFailed(), stoppedAt=now()});
+    function fail(required indexID, details="") {
+        return update(indexID, {status=getStatusFailed(), stoppedAt=now(), failureDetails=serializeJSON(details)});
     }
 
     function inProgress(required siteID) {

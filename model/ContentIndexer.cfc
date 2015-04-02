@@ -77,8 +77,8 @@ component accessors=true {
             "file"=getContentFile(content),
             "tags"=listToArray(content.getTags()),
             "url"=content.getUrl(),
-            "created"=elasticDatetime(content.getCreated()),
-            "lastUpdate"=elasticDatetime(content.getLastUpdate()),
+            "created"=formatDatetime(content.getCreated()),
+            "lastUpdate"=formatDatetime(content.getLastUpdate()),
             "filename"=content.getFilename(),
             "metaDesc"=content.getMetaDesc(),
             "metaKeywords"=content.getMetaKeywords()
@@ -149,7 +149,7 @@ component accessors=true {
         return result.recordCount gt 1 ? result.filename[2] : '';
     }
 
-    private function elasticDatetime(required datetime) {
+    private function formatDatetime(required datetime) {
         return getElasticsearchService().formatDatetime(datetime);
     }
 
@@ -158,16 +158,11 @@ component accessors=true {
     }
 
     private function getWriteAlias(required siteID) {
-        return getAlias(siteID, getWriteAliasName(siteID));
+        return getElasticsearchService().getWriteAliasForSite(siteID);
     }
 
-    private function getAlias(required siteID, alias='') {
-        var response = getElasticClient(siteID).getAlias(name=len(alias) ? alias : siteID, ignore="404");
-        return (
-            response.is200()
-                ? structKeyArray(response.toJSON())
-                : []
-        );
+    private function getAlias(required siteID) {
+        return getElasticsearchService().getAliasForSite(siteID);
     }
 
     private function getWriteAliasName(required siteID) {

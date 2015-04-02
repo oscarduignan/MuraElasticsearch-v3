@@ -3,7 +3,7 @@ component persistent="false" output="false" extends="mura.plugin.pluginGenericEv
     public void function onApplicationLoad(required struct $) {
         variables.pluginConfig.addEventHandler(this);
 
-        getServiceFactory().addBean("MuraElasticsearch", new MuraElasticsearch().setParentBeanFactory(getServiceFactory())); 
+        getServiceFactory().addBean("MuraElasticsearch", new MuraElasticsearch(parentServiceFactory=getServiceFactory())); 
 
         if (isDefined("url.applydbupdates")) { getBean("MuraElasticsearch").applyDBUpdates(); }
     }
