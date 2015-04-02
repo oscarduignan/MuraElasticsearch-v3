@@ -47,7 +47,7 @@ component accessors=true output=true {
                 if (indexingCancelled(indexID)) { return; }
             }
 
-            emit("onIndexSite", { siteID=siteID, newIndex=newIndex });
+            emit("onIndexSite", { siteID=siteID, indexID=indexID, newIndex=newIndex });
 
             if (indexingCancelled(indexID)) { return; }
 
