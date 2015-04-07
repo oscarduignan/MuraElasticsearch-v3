@@ -237,7 +237,11 @@ component extends="testbox.system.BaseSpec" {
             contentIndexer.updateContent(content1);
             contentIndexer.updateContent(content2);
 
-            var updatedContent = plugin.getBean("content").loadBy(contentID=content1.getContentID(),siteID="default").setURLTitle("first-title-change").setApproved(1).save();
+            // update filename
+            plugin.getBean("content").loadBy(contentID=content1.getContentID(),siteID="default").setURLTitle("first-title-change").setApproved(1).save();
+
+            // get latest from db to make sure it's working as we expect
+            var updatedContent = plugin.getBean("content").loadBy(contentID=content1.getContentID(),siteID="default");
 
             contentIndexer.updateContent(updatedContent);
 
@@ -281,11 +285,15 @@ component extends="testbox.system.BaseSpec" {
             contentIndexer.updateContent(content1);
             contentIndexer.updateContent(content2);
 
+            // update filename
             plugin.getBean("content").loadBy(contentID=content1.getContentID(),siteID="default").setApproved(1).save();
             sleep(500);
             plugin.getBean("content").loadBy(contentID=content1.getContentID(),siteID="default").setApproved(1).save();
             sleep(500);
-            var updatedContent = plugin.getBean("content").loadBy(contentID=content1.getContentID(),siteID="default").setURLTitle("first-title-changed-3").setApproved(1).save();
+            plugin.getBean("content").loadBy(contentID=content1.getContentID(),siteID="default").setURLTitle("first-title-changed").setApproved(1).save();
+
+            // get latest from db to make sure it's working as we expect
+            var updatedContent = plugin.getBean("content").loadBy(contentID=content1.getContentID(),siteID="default");
 
             contentIndexer.updateContent(updatedContent);
 
