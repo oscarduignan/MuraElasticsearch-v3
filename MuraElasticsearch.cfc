@@ -15,16 +15,16 @@ component accessors=true {
         getBean("DatabaseUpdater").applyDBUpdates("/MuraElasticsearch/migrations");
     }
 
-    public function updateContent(required content) {
-        getBean("ContentIndexer").updateContent(content);
+    public function updateContent(required content, required $) {
+        getBean("ContentIndexer").updateContent(content, $);
     }
 
-    public function removeContent(required content) {
-        getBean("ContentIndexer").removeContent(content);
+    public function removeContent(required content, required $) {
+        getBean("ContentIndexer").removeContent(content, $);
     }
 
-    public function indexSite(required siteID) {
-        getBean("SiteIndexer").indexSite(siteID);
+    public function indexSite(required $) {
+        getBean("SiteIndexer").indexSite($);
     }
 
     public function cancelIndexing(required siteID) {
