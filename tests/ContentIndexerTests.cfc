@@ -19,7 +19,7 @@ component extends="testbox.system.BaseSpec" {
     }
 
     function afterTests() {
-        plugin.getBean("TrashManager").empty(siteid="default");
+        clearDefaultSiteTrash();
 
         esClient.deleteIndex(name="default", ignore="404");
     }
@@ -27,8 +27,6 @@ component extends="testbox.system.BaseSpec" {
     function test_getDefaultContentStruct_returns_the_expected_structure() {
         try {
             var content = createContent({
-                siteid="default",
-                parentid="00000000000000000000000000000000001",
                 title="testTitle",
                 body="testBody",
                 summary="testSummary",
@@ -64,8 +62,6 @@ component extends="testbox.system.BaseSpec" {
     function test_getContentJSON_returns_json_serialized_defaultContentStruct_when_not_overriden() {
         try {
             var content = createContent({
-                siteid="default",
-                parentid="00000000000000000000000000000000001",
                 title="testTitle",
                 body="testBody",
                 summary="testSummary",
@@ -87,17 +83,7 @@ component extends="testbox.system.BaseSpec" {
 
     function test_getContentJSON_returns_getElasticsearchContentJSON_when_its_defined_on_the_sites_contentrenderer() {
         try {
-            var content = createContent({
-                siteid="default",
-                parentid="00000000000000000000000000000000001",
-                title="testTitle",
-                body="testBody",
-                summary="testSummary",
-                tags="a,b,c",
-                metaDesc="testMetaDesc",
-                metaKeywords="testMetaKeywords",
-                active=1
-            });
+            var content = createContent();
 
             var $ = (
                 getMockBox()
@@ -131,16 +117,13 @@ component extends="testbox.system.BaseSpec" {
         $assert.isFalse(contentIndexer.shouldIndex(newContent({}), $));
     }
 
-    function test_updateContent_should_index_content_that_should_be_indexed() {
+    function test_updateContent_should_index_content_that_should_be_indexed_and_is_approved() {
         try {
-            var content = createContent({
-                siteID="default",
-                parentID="00000000000000000000000000000000001",
-                title="testTitle",
-                active=1
-            });
+            var content = createContent();
 
             contentIndexer.updateContent(content);
+
+            esClient.refreshIndex("default");
 
             $assert.isTrue(esClient.documentExists(
                 "default",
@@ -154,14 +137,31 @@ component extends="testbox.system.BaseSpec" {
         }
     }
 
-    function test_removeContent_should_remove_content_from_index() {
+    function test_updateContent_should_not_index_content_that_should_be_indexed_but_is_not_approved() {
         try {
             var content = createContent({
-                siteID="default",
-                parentID="00000000000000000000000000000000001",
-                title="testTitle",
-                active=1
+                approved=0 // means it's a draft!
             });
+
+            contentIndexer.updateContent(content);
+
+            esClient.refreshIndex("default");
+
+            $assert.isFalse(esClient.documentExists(
+                "default",
+                contentIndexer.getType(),
+                content.getContentID()
+            ));
+        } finally {
+            if(isDefined("local.content") and not content.getIsNew()) {
+                content.delete();
+            }
+        }
+    }
+
+    function test_removeContent_should_remove_content_from_index() {
+        try {
+            var content = createContent();
 
             contentIndexer.updateContent(content);
 
@@ -172,6 +172,8 @@ component extends="testbox.system.BaseSpec" {
             ));
 
             contentIndexer.removeContent(content);
+
+            esClient.refreshIndex("default");
 
             $assert.isFalse(esClient.documentExists(
                 "default",
@@ -187,12 +189,7 @@ component extends="testbox.system.BaseSpec" {
 
     function test_updateContent_should_remove_content_from_index_that_should_not_be_indexed() {
         try {
-            var content = createContent({
-                siteID="default",
-                parentID="00000000000000000000000000000000001",
-                title="testTitle",
-                active=1
-            });
+            var content = createContent();
 
             contentIndexer.updateContent(content);
 
@@ -206,6 +203,8 @@ component extends="testbox.system.BaseSpec" {
 
             contentIndexer.updateContent(content);
 
+            esClient.refreshIndex("default");
+
             $assert.isFalse(esClient.documentExists(
                 "default",
                 contentIndexer.getType(),
@@ -218,32 +217,30 @@ component extends="testbox.system.BaseSpec" {
         }
     }
 
-    function test_updateContent_should_update_filenames_of_content_after_first_version() {
+    function test_updateContent_should_update_filenames_of_indexed_content_when_oldFilename_is_present_and_changed() {
         try {
+            // create content to test with and index it
             var content1 = createContent({
-                siteID="default",
-                parentID="00000000000000000000000000000000001",
-                title="first-title",
-                active=1
+                title="first-title"
             });
-
             var content2 = createContent({
-                siteID="default",
                 parentID=content1.getContentID(),
-                title="second-title",
-                active=1
+                title="second-title"
             });
-
             contentIndexer.updateContent(content1);
             contentIndexer.updateContent(content2);
 
-            // update filename
-            plugin.getBean("content").loadBy(contentID=content1.getContentID(),siteID="default").setURLTitle("first-title-change").setApproved(1).save();
-
-            // get latest from db to make sure it's working as we expect
-            var updatedContent = plugin.getBean("content").loadBy(contentID=content1.getContentID(),siteID="default");
-
+            // update filename and index the updated content
+            var updatedContent = (
+                getContent(content1.getContentID())
+                    .setURLTitle("first-title-change")
+                    .setApproved(1)
+                    .save()
+                    .setOldFilename("first-title") // mimic behaviour of onContentSave() event
+            );
             contentIndexer.updateContent(updatedContent);
+
+            esClient.refreshIndex("default");
 
             $assert.isEqual(updatedContent.getFilename(), esClient.getDocument(
                 "default",
@@ -251,59 +248,7 @@ component extends="testbox.system.BaseSpec" {
                 content1.getContentID()
             ).toJSON()["_source"]["filename"]);
 
-            $assert.isEqual(plugin.getBean("content").loadBy(contentID=content2.getContentID(),siteID="default").getFilename(), esClient.getDocument(
-                "default",
-                contentIndexer.getType(),
-                content2.getContentID()
-            ).toJSON()["_source"]["filename"]);
-        } finally {
-            if(isDefined("local.content1") and not content1.getIsNew()) {
-                content1.delete();
-            }
-            if(isDefined("local.content2") and not content2.getIsNew()) {
-                content2.delete();
-            }
-        }
-    }
-
-    function test_updateContent_should_update_filenames_of_content_after_a_few_versions() {
-        try {
-            var content1 = createContent({
-                siteID="default",
-                parentID="00000000000000000000000000000000001",
-                title="first-title",
-                active=1
-            });
-
-            var content2 = createContent({
-                siteID="default",
-                parentID=content1.getContentID(),
-                title="second-title",
-                active=1
-            });
-
-            contentIndexer.updateContent(content1);
-            contentIndexer.updateContent(content2);
-
-            // update filename
-            plugin.getBean("content").loadBy(contentID=content1.getContentID(),siteID="default").setApproved(1).save();
-            sleep(500);
-            plugin.getBean("content").loadBy(contentID=content1.getContentID(),siteID="default").setApproved(1).save();
-            sleep(500);
-            plugin.getBean("content").loadBy(contentID=content1.getContentID(),siteID="default").setURLTitle("first-title-changed").setApproved(1).save();
-
-            // get latest from db to make sure it's working as we expect
-            var updatedContent = plugin.getBean("content").loadBy(contentID=content1.getContentID(),siteID="default");
-
-            contentIndexer.updateContent(updatedContent);
-
-            $assert.isEqual(updatedContent.getFilename(), esClient.getDocument(
-                "default",
-                contentIndexer.getType(),
-                content1.getContentID()
-            ).toJSON()["_source"]["filename"]);
-
-            $assert.isEqual(plugin.getBean("content").loadBy(contentID=content2.getContentID(),siteID="default").getFilename(), esClient.getDocument(
+            $assert.isEqual(getContent(content2.getContentID()).getFilename(), esClient.getDocument(
                 "default",
                 contentIndexer.getType(),
                 content2.getContentID()

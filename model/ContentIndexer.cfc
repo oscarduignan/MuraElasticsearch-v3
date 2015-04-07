@@ -6,11 +6,12 @@ component accessors=true {
     property name="type" default="muraContent";
 
     public function updateContent(required content) {
+        if (not content.getApproved()) return;
         if (not shouldIndex(content)) return removeContent(content);
 
         var elasticsearch = getElasticClient(content.getSiteID());
         var contentJSON = getContentJSON(content);
-        var oldFilename = getFilenameOfLastVersion(content);
+        var oldFilename = content.getOldFilename();
         var filenameHasChanged = len(oldFilename) and content.getFilename() neq oldFilename;
 
         for (var index in getWriteAlias(content.getSiteID())) {
@@ -78,7 +79,7 @@ component accessors=true {
             "subType"=content.getSubType(),
             "body"=content.getBody(),
             "summary"=content.getSummary(),
-            "file"=getContentFile(content),
+            "file"=getAssociatedFileAsBase64(content),
             "tags"=listToArray(content.getTags()),
             "url"=content.getUrl(),
             "created"=formatDatetime(content.getCreated()),
@@ -89,22 +90,8 @@ component accessors=true {
         };
     }
 
-    public function getContentFile(required content) {
-        if (len(content.getFileID()) and content.getType().equalsIgnoreCase("file")) {
-            return binaryEncode(fileReadBinary(getUtilities().getPathToAssociatedFile(content)), "base64");
-        } else {
-            return "";
-        };
-    }
-
-    private function getPathToAssociatedFile(required content) {
-        var delim = getConfigBean().getFileDelim();
-
-        if (len(content.getFileID())) {
-            return getConfigBean().getFileDir() & delim & content.getSiteID() & delim & "cache" & delim & "file" & delim & content.getFileID() & "." & content.getFileExt();
-        } else {
-            return "";
-        }
+    private function getAssociatedFileAsBase64(required content) {
+        return getUtilities().getAssociatedFileAsBase64(content);
     }
 
     private function updateFilenames(required siteID, required index, required oldFilename, required newFilename) {
@@ -125,34 +112,6 @@ component accessors=true {
                     substring=newFilename
                 )
         );
-    }
-
-    private function getFilenameOfLastVersion(required content) {
-        var dbtype = lcase(getConfigBean().getDBType());
-
-        // for some reason this won't get filename of last version for the first few versions of a piece of content...
-
-        var result = (
-            new query()
-                .setDatasource(getConfigBean().getDatasource())
-                .setSQL("
-                    select #dbtype eq "mssql" ? "top 2" : ""#
-                        tcontent.filename
-                    from tcontent 
-                    where
-                        tcontent.contentid = :contentID
-                        and tcontent.siteid = :siteID
-                        and tcontent.active = 0
-                    order by tcontent.lastupdate desc
-                    #dbtype eq "mysql" ? "limit 2" : ""#
-                ")
-                .addParam(name="contentID", value=content.getContentID(), cfsqltype="cf_sql_varchar")
-                .addParam(name="siteID", value=content.getSiteID(), cfsqltype="cf_sql_varchar")
-                .execute()
-                .getResult()
-        );
-
-        return result.recordCount gt 1 ? result.filename[2] : '';
     }
 
     private function formatDatetime(required datetime) {
