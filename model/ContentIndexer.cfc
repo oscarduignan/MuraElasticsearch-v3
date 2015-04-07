@@ -5,7 +5,6 @@ component accessors=true {
     property name="BeanFactory";
     property name="type" default="muraContent";
 
-    // TODO should I just pass in $ rather than init it in the function?
     public function updateContent(required content, required $) {
         if (not content.getApproved()) return;
         if (not shouldIndex(content))  return removeContent(content, $);

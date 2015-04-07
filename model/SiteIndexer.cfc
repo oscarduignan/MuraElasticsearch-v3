@@ -17,7 +17,7 @@ component accessors=true output=true {
         try {
             var newIndex = createIndexForSite($);
 
-            var siteContent = getSiteContent($);
+            var siteContent = getSiteContentIterator($);
 
             updateProgress(indexID, {
                 newIndex=newIndex,
@@ -159,7 +159,7 @@ component accessors=true output=true {
         return indexName;
     }
 
-    private function getSiteContent(required $) {
+    private function getSiteContentIterator(required $) {
         if (structKeyExists($, "getElasticsearchContentIterator")) {
             return $.getElasticsearchContentIterator();
         } else {
