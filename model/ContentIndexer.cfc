@@ -51,7 +51,11 @@ component accessors=true {
         if (structKeyExists($, "getElasticsearchShouldIndex")) {
             return $.getElasticsearchShouldIndex(content);
         } else {
-            return true;
+            return (
+                content.getIsOnDisplay()
+                and
+                content.getSearchExclude() eq 0
+            );
         }
     }
 
@@ -125,6 +129,8 @@ component accessors=true {
 
     private function getFilenameOfLastVersion(required content) {
         var dbtype = lcase(getConfigBean().getDBType());
+
+        // for some reason this won't get filename of last version for the first few versions of a piece of content...
 
         var result = (
             new query()
