@@ -5,7 +5,9 @@ component accessors=true output=true {
     property name="SiteIndexStatusService";
     property name="BeanFactory";
 
-    public function indexSite(required siteID) {
+    public function indexSite(required $) {
+        var siteID = $.event('siteID');
+
         lock name="elasticIndexSite#siteID#" type="exclusive" timeout="10" {
             cancelExistingIndexing(siteID);
 
@@ -13,9 +15,7 @@ component accessors=true output=true {
         }
 
         try {
-            var $ = getBeanFactory().getBean("MuraScope").init(siteID);
-
-            var newIndex = createIndexForSite(siteID);
+            var newIndex = createIndexForSite($);
 
             var siteContent = getSiteContent($);
 
@@ -61,13 +61,11 @@ component accessors=true output=true {
         }
     }
 
-    public function getIndexConfigJSON(required siteID) {
-        var $ = getBeanFactory().getBean("MuraScope").init(siteID);
-
+    public function getIndexConfigJSON(required $) {
         if (structKeyExists($, "getElasticsearchIndexConfigJSON")) {
             return $.getElasticsearchIndexConfigJSON();
         } else {
-            return serializeJSON(getDefaultIndexConfigStruct(siteID));
+            return serializeJSON(getDefaultIndexConfigStruct($.event("siteID")));
         }
     }
 
@@ -124,6 +122,16 @@ component accessors=true output=true {
         };
     }
 
+    public function getDefaultSiteContentFeed(required siteID) {
+        return (
+            getBeanFactory()
+                .getBean("feed")
+                    .setSiteID(siteID)
+                    .setMaxItems(9999)
+                    .setShowNavOnly(0)
+        );
+    }
+
     private function changeSiteIndex(required siteID, required newIndex) {
         var actions = [];
 
@@ -144,10 +152,11 @@ component accessors=true output=true {
         return getElasticClient(siteID).updateAliases(actions);
     }
 
-    private function createIndexForSite(required siteID) {
-        var name = siteID & "_" & now().getTime();
-        getElasticClient(siteID).createIndex(name, getIndexConfigJSON(siteID));
-        return name;
+    private function createIndexForSite(required $) {
+        var siteID = $.event('siteID');
+        var indexName = siteID & "_" & now().getTime();
+        getElasticClient(siteID).createIndex(indexName, getIndexConfigJSON($));
+        return indexName;
     }
 
     private function getSiteContent(required $) {
@@ -155,11 +164,7 @@ component accessors=true output=true {
             return $.getElasticsearchContentIterator();
         } else {
             return (
-                getBeanFactory()
-                    .getBean("feed")
-                        .setSiteID($.event("siteid"))
-                        .setMaxItems(9999)
-                        .setShowNavOnly(0)
+                getDefaultSiteContentFeed($.event('siteid'))
                     .getIterator()
                         .setNextN(50)
             );

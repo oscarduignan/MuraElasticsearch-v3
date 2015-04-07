@@ -4,6 +4,8 @@ component extends="testbox.system.BaseSpec" {
     function beforeTests() {
         param name="url.host" default="localhost:9200";
 
+        $ = getMuraScope("default");
+
         plugin = new MuraElasticsearch.MuraElasticsearch(application.serviceFactory);
 
         contentIndexer = plugin.getBean("ContentIndexer");
@@ -73,7 +75,7 @@ component extends="testbox.system.BaseSpec" {
 
             var serializedDefaultContentStruct = serializeJSON(contentIndexer.getDefaultContentStruct(content));
 
-            $assert.isEqual(serializedDefaultContentStruct, contentIndexer.getContentJSON(content, getMuraScope("default")));
+            $assert.isEqual(serializedDefaultContentStruct, contentIndexer.getContentJSON(content, $));
         } finally {
             if(isDefined("local.content") and not content.getIsNew()) {
                 content.delete();
@@ -99,12 +101,23 @@ component extends="testbox.system.BaseSpec" {
         }
     }
 
-    function test_shouldIndex_returns_true_when_content_should_be_indexed() {
-        $assert.isTrue(contentIndexer.shouldIndex(newContent({}), getMuraScope("default")));
+    function test_shouldIndex_returns_true_when_content_is_included_in_search_and_displayed_on_site() {
+        $assert.isTrue(contentIndexer.shouldIndex(newContent({
+            searchExclude=0,
+            display=1
+        }), $));
     }
 
-    function test_shouldIndex_returns_false_when_content_should_not_be_indexed() {
-        $assert.isFalse(contentIndexer.shouldIndex(newContent({searchExclude=1, display=0}), getMuraScope("default")));
+    function test_shouldIndex_returns_false_when_content_has_been_excluded_from_search() {
+        $assert.isFalse(contentIndexer.shouldIndex(newContent({
+            searchExclude=1
+        }), $));
+    }
+
+    function test_shouldIndex_returns_false_when_content_is_set_to_not_display() {
+        $assert.isFalse(contentIndexer.shouldIndex(newContent({
+            display=0
+        }), $));
     }
 
     function test_shouldIndex_returns_getElasticsearchShouldIndex_when_its_defined_on_the_sites_contentrenderer() {
@@ -114,14 +127,17 @@ component extends="testbox.system.BaseSpec" {
                     .$("getElasticsearchShouldIndex", false)
         );
 
-        $assert.isFalse(contentIndexer.shouldIndex(newContent({}), $));
+        $assert.isFalse(contentIndexer.shouldIndex(newContent({
+            searchExclude=0,
+            display=1
+        }), $));
     }
 
     function test_updateContent_should_index_content_that_should_be_indexed_and_is_approved() {
         try {
             var content = createContent();
 
-            contentIndexer.updateContent(content);
+            contentIndexer.updateContent(content, $);
 
             esClient.refreshIndex("default");
 
@@ -143,7 +159,7 @@ component extends="testbox.system.BaseSpec" {
                 approved=0 // means it's a draft!
             });
 
-            contentIndexer.updateContent(content);
+            contentIndexer.updateContent(content, $);
 
             esClient.refreshIndex("default");
 
@@ -163,7 +179,7 @@ component extends="testbox.system.BaseSpec" {
         try {
             var content = createContent();
 
-            contentIndexer.updateContent(content);
+            contentIndexer.updateContent(content, $);
 
             $assert.isTrue(esClient.documentExists(
                 "default",
@@ -171,7 +187,7 @@ component extends="testbox.system.BaseSpec" {
                 content.getContentID()
             ));
 
-            contentIndexer.removeContent(content);
+            contentIndexer.removeContent(content, $);
 
             esClient.refreshIndex("default");
 
@@ -191,7 +207,7 @@ component extends="testbox.system.BaseSpec" {
         try {
             var content = createContent();
 
-            contentIndexer.updateContent(content);
+            contentIndexer.updateContent(content, $);
 
             $assert.isTrue(esClient.documentExists(
                 "default",
@@ -201,7 +217,7 @@ component extends="testbox.system.BaseSpec" {
 
             content.setSearchExclude(1).save();
 
-            contentIndexer.updateContent(content);
+            contentIndexer.updateContent(content, $);
 
             esClient.refreshIndex("default");
 
@@ -219,26 +235,28 @@ component extends="testbox.system.BaseSpec" {
 
     function test_updateContent_should_update_filenames_of_indexed_content_when_oldFilename_is_present_and_changed() {
         try {
+            var titleAndFilename = "first-title-#lcase(createUUID())#";
+
             // create content to test with and index it
             var content1 = createContent({
-                title="first-title"
+                title=titleAndFilename
             });
             var content2 = createContent({
                 parentID=content1.getContentID(),
                 title="second-title"
             });
-            contentIndexer.updateContent(content1);
-            contentIndexer.updateContent(content2);
+            contentIndexer.updateContent(content1, $);
+            contentIndexer.updateContent(content2, $);
 
             // update filename and index the updated content
             var updatedContent = (
                 getContent(content1.getContentID())
-                    .setURLTitle("first-title-change")
+                    .setURLTitle(titleAndFilename & "changed")
                     .setApproved(1)
                     .save()
-                    .setOldFilename("first-title") // mimic behaviour of onContentSave() event
+                    .setOldFilename(titleAndFilename) // mimic behaviour of onContentSave() event
             );
-            contentIndexer.updateContent(updatedContent);
+            contentIndexer.updateContent(updatedContent, $);
 
             esClient.refreshIndex("default");
 

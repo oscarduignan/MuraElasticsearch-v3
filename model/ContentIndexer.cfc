@@ -5,16 +5,18 @@ component accessors=true {
     property name="BeanFactory";
     property name="type" default="muraContent";
 
-    public function updateContent(required content) {
+    // TODO should I just pass in $ rather than init it in the function?
+    public function updateContent(required content, required $) {
         if (not content.getApproved()) return;
-        if (not shouldIndex(content)) return removeContent(content);
+        if (not shouldIndex(content))  return removeContent(content, $);
 
-        var elasticsearch = getElasticClient(content.getSiteID());
+        var siteID = $.event('siteID');
+        var elasticsearch = getElasticClient(siteID);
         var contentJSON = getContentJSON(content);
         var oldFilename = content.getOldFilename();
         var filenameHasChanged = len(oldFilename) and content.getFilename() neq oldFilename;
 
-        for (var index in getWriteAlias(content.getSiteID())) {
+        for (var index in getWriteAlias(siteID)) {
             elasticsearch.insertDocument(
                 index=index,
                 type=getType(),
@@ -24,7 +26,7 @@ component accessors=true {
 
             if (filenameHasChanged) {
                 updateFilenames(
-                    siteid=content.getSiteID(),
+                    siteid=siteID,
                     index=index,
                     oldFilename=oldFilename,
                     newFilename=content.getFilename()
@@ -33,10 +35,10 @@ component accessors=true {
         }
     }
 
-    public function removeContent(required content) {
-        var elasticsearch = getElasticClient(content.getSiteID());
+    public function removeContent(required content, required $) {
+        var elasticsearch = getElasticClient($.event('siteID'));
 
-        for(var index in getWriteAlias(content.getSiteID())) {
+        for(var index in getWriteAlias($.event('siteID'))) {
             elasticsearch.removeDocument(
                 index=index,
                 type=getType(),
@@ -46,11 +48,8 @@ component accessors=true {
     }
 
     public function shouldIndex(required content, $) {
-        if (not isDefined("arguments.$"))
-            arguments.$ = getBeanFactory().getBean("MuraScope").init(content.getSiteID());
-
-        if (structKeyExists($, "getElasticsearchShouldIndex")) {
-            return $.getElasticsearchShouldIndex(content);
+        if (isDefined("arguments.$") and structKeyExists(arguments.$, "getElasticsearchShouldIndex")) {
+            return arguments.$.getElasticsearchShouldIndex(content);
         } else {
             return (
                 content.getIsOnDisplay()
@@ -61,11 +60,8 @@ component accessors=true {
     }
 
     public function getContentJSON(required content, $) {
-        if (not isDefined("arguments.$"))
-            arguments.$ = getBeanFactory().getBean("MuraScope").init(content.getSiteID());
-
-        if (structKeyExists($, "getElasticsearchContentJSON")) {
-            return $.getElasticsearchContentJSON(content);
+        if (isDefined("arguments.$") and structKeyExists(arguments.$, "getElasticsearchContentJSON")) {
+            return arguments.$.getElasticsearchContentJSON(content);
         } else {
             return serializeJSON(getDefaultContentStruct(content));
         }
