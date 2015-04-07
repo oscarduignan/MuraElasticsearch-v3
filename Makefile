@@ -12,4 +12,5 @@ build: clean
 					MuraElasticsearch/migrations \
 					MuraElasticsearch/MuraElasticsearch.cfc \
 					MuraElasticsearch/EventHandler.cfc \
-					MuraElasticsearch/LICENSE
+					MuraElasticsearch/LICENSE \
+					MuraElasticsearch/index.cfm
