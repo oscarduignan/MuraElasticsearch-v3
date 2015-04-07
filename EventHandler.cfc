@@ -9,11 +9,11 @@ component persistent="false" output="false" extends="mura.plugin.pluginGenericEv
     }
 
     public void function onContentSave(required struct $) {
-        getBean("MuraElasticsearch").updateContent($.getContentBean());
+        getBean("MuraElasticsearch").updateContent($.getContentBean(), $);
     }
 
     public void function onContentDelete(required struct $) {
-        getBean("MuraElasticsearch").removeContent($.getContentBean());
+        getBean("MuraElasticsearch").removeContent($.getContentBean(), $);
     }
 
 }
