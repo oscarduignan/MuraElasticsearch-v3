@@ -1,5 +1,11 @@
 # CHANGES
 
+### `next`
+
+#### enhancements
+
+* added tests for [model/SiteIndexer.cfc]
+
 ### [`v0.1.0`](https://github.com/oscarduignan/MuraElasticsearch/releases/tag/v0.1.0)
 
 The aim with this release is that the underlying indexing should work just about now and have decent test coverage!

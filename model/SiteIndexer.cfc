@@ -59,6 +59,8 @@ component accessors=true output=true {
 
             if (isDefined("newIndex")) removeIndexFromWriteAlias(siteID, newIndex);
         }
+
+        return indexID;
     }
 
     public function getIndexConfigJSON(required $) {

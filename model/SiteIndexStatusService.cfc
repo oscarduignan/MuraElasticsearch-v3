@@ -49,6 +49,16 @@ component accessors=true {
         );
     }
 
+    function getNewIndex(required indexID) {
+        return (
+            newQuery("SELECT newIndex from #getTableName()# WHERE indexid = :indexid")
+                .addParam(name="indexid", value=indexID, cfsqltype="cf_sql_varchar")
+                .execute()
+                .getResult()
+                .newIndex
+        );
+    }
+
     function complete(required indexID) {
         return update(indexID, {status=getStatusCompleted(), stoppedAt=now()});
     }
