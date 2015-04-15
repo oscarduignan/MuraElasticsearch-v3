@@ -2,16 +2,22 @@ var path = require('path');
 var webpack = require('webpack');
 
 var config = module.exports = {
+    devtool: 'eval',
     context: path.dirname(__dirname),
-}
+};
 
 config.entry = {
-    admin: './javascripts/admin'
+    admin: [
+        'webpack-dev-server/client?http://localhost:8080',
+        'webpack/hot/only-dev-server',
+        './javascripts/admin'
+    ]
 };
 
 config.output = {
-    filename: '[name].bundle.js',
-    path: path.join(config.context, 'assets')
+    filename: '[name].js',
+    path: path.join(config.context, 'assets'),
+    publicPath: 'http://localhost:8080/assets/'
 };
 
 config.resolve = {
@@ -19,12 +25,24 @@ config.resolve = {
     root: [
         path.join(config.context, 'javascripts'),
         path.join(config.context, 'stylesheets')
-    ],
-    modulesDirectories: [ 'node_modules', 'bower_components' ], 
+    ]
+};
+
+config.module = {
+    loaders: [
+        {
+            test: /\.jsx?$/,
+            include: path.join(config.context, "javascripts"),
+            loaders: ["react-hot", "babel"]
+        },
+        {
+            test: /\.scss$/,
+            loaders: ["style", "css", "sass"]
+        }
+    ]
 };
 
 config.plugins = [
-    new webpack.ResolverPlugin([
-        new webpack.ResolverPlugin.DirectoryDescriptionFilePlugin('.bower.json', ['main'])
-    ])
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NoErrorsPlugin()
 ];

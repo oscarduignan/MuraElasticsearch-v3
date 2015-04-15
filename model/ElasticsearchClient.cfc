@@ -8,6 +8,10 @@ component accessors=true {
         return this;
     }
 
+    function getStatus() {
+        return makeHttpRequest(method="get", url=createURL(), ignore="404").toJSON();
+    }
+
     function search(
         required body,
         index="",

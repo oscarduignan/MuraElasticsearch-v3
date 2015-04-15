@@ -54,5 +54,4 @@ component accessors=true {
         }
     }
 
-
 }
