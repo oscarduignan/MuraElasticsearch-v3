@@ -27,7 +27,7 @@ component {
     }
 
     private function siteAdminOrSuperAdmin(required siteid) {
-        return not isDefined("sesson.mura.memberships") or (superAdmin(session.mura.memberships) or siteAdmin(session.mura.memberships, siteid));
+        return isDefined("sesson.mura.memberships") and (superAdmin(session.mura.memberships) or siteAdmin(session.mura.memberships, siteid));
     }
 
     private function siteAdmin(required memberships, required siteid) {
