@@ -1,16 +1,16 @@
 component {
 
-    remote function getElasticsearchStatus(required siteid) returnFormat="json" {
+    remote function getElasticsearchStatus() returnFormat="json" {
         if (not validCSRFToken()) return badToken(); // don't need for this request but using as a test
-        if (not siteAdminOrSuperAdmin(siteid)) return forbidden();
-        return getPlugin().getStatus(siteid);
+        if (not siteAdminOrSuperAdmin(session.siteid)) return forbidden();
+        return getPlugin().getStatus(session.siteid);
     }
 
     /*** utilities ***********************************************************/
 
     private function getMuraScope() {
         if (not isDefined("muraScope")) {
-            muraScope = application.serviceFactory.getBean("MuraScope").init(isDefined("session.siteid") ? session.siteid : "");
+            muraScope = application.serviceFactory.getBean("MuraScope").init(session.siteid);
         }
         return muraScope;
     }
