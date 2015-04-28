@@ -1,5 +1,5 @@
 import Reflux from 'reflux';
-import actions from 'actions';
+import actions from './actions';
 import request from 'superagent';
 
 export default Reflux.createStore({
@@ -8,9 +8,9 @@ export default Reflux.createStore({
     },
 
     onStatusCheck: function() {
-        // TODO need to be able to have a separate store for each siteid, not sure how to do this at the moment
+        // TODO need to be able to have a separate store for each siteid, not sure best way to do this at the moment
         request
-            .get("MuraElasticsearch.cfc?method=getElasticsearchStatus&siteid=elastic")
+            .get("API.cfc?method=getElasticsearchStatus&siteid=elastic")
             .end(function(err, res) {
                 if (res.ok && res.body.status === 200) {
                     this.trigger('ONLINE');

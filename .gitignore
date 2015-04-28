@@ -1,5 +1,5 @@
 plugin.zip
 *.swp
-frontend/assets
-frontend/bower_components
-frontend/node_modules
+client/dist
+client/bower_components
+client/node_modules

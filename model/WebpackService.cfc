@@ -20,14 +20,14 @@ component accessors=true {
 
     public function getPublicPath() {
         if (usingWebpackDevServer()) {
-            return "http://localhost:8080/assets/";
+            return "http://localhost:8080/dist/";
         } else {
-            return '#getConfigBean().getContext()#/plugins/#getPluginConfig().getDirectory()#/frontend/assets/';
+            return '#getConfigBean().getContext()#/plugins/#getPluginConfig().getDirectory()#/client/dist/';
         }
     }
 
     private function getManifestPath() {
-        return "../frontend/assets/manifest.json";
+        return "../client/dist/manifest.json";
     }
 
 }

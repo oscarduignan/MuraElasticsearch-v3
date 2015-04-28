@@ -18,7 +18,7 @@ maybe can provide an example replacement search display object
 <cfset plugin = $.getBean("MuraElasticsearch")>
 
 <cfif not $.currentUser().isLoggedIn()>
-    <!--- TODO check user is authorized too --->
+    <!--- TODO check user is site admin or super admin --->
     <cflocation url="#$.globalConfig("context")#/admin/" addtoken="false">
 </cfif>
 

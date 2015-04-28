@@ -1,7 +1,6 @@
 import React from 'react';
 import Reflux from 'reflux';
-import statusStore from 'ElasticsearchStatusStore';
-import Spinner from 'Spinner';
+import statusStore from './ElasticsearchStatusStore';
 
 export default React.createClass({
     mixins: [Reflux.connect(statusStore, 'currentStatus')],

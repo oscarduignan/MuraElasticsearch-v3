@@ -1,6 +1,6 @@
 import React from 'react';
-import Header from 'Header';
-import actions from 'actions';
+import Header from './Header';
+import actions from './actions';
 
 React.render((
     <div>

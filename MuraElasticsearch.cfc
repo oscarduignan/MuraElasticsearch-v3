@@ -45,13 +45,12 @@ component accessors=true {
         return getBean("WebpackService").usingWebpackDevServer();
     }
 
-    public function getBean(required name) {
-        return getBeanFactory().getBean(name);
+    public function getStatus(required siteid) {
+        return getBean("ElasticsearchService").getClientForSite(siteid).getStatus();
     }
 
-    // todo refactor this out to a plugin/api.cfc or something like that, need to think about access control
-    remote function getElasticsearchStatus(required siteid) returnFormat="json" {
-        return application.serviceFactory.getBean("MuraElasticsearch").getBean("ElasticsearchService").getClientForSite(siteid).getStatus();
+    public function getBean(required name) {
+        return getBeanFactory().getBean(name);
     }
 
 }

@@ -1,22 +1,21 @@
-.PHONY: clean webpack_dev_server build install
+.PHONY: clean run_webpack_dev_server install_build_dependencies build_release
 
 clean:
-	rm -f frontend/assets/*
+	rm -f client/dist/*
 	rm -f plugin.zip
 
-webpack_dev_server: clean
-	frontend/node_modules/.bin/webpack-dev-server --config frontend/webpack/default.config.js --hot --no-info --progress --colors
+run_webpack_dev_server: clean install_build_dependencies
+	client/node_modules/.bin/webpack-dev-server --config client/webpack/dev.config.js
 
-install:
-	cd frontend && npm install
-	cd frontend && bower install
+install_build_dependencies:
+	cd client && npm install
+	cd client && bower install
 
-build: clean install
-	cd frontend && frontend/node_modules/.bin/webpack --config webpack/release.config.js
+build_release: clean install_build_dependencies
+	client/node_modules/.bin/webpack --config client/webpack/dev.config.js -p
 	cd .. && zip -r MuraElasticsearch/plugin.zip \
 					MuraElasticsearch/model \
-					MuraElasticsearch/frontend/assets \
-					MuraElasticsearch/frontend/display_objects \
+					MuraElasticsearch/client/dist \
 					MuraElasticsearch/vendor \
 					MuraElasticsearch/plugin \
 					MuraElasticsearch/migrations \
