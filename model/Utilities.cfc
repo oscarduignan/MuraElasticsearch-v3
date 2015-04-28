@@ -3,6 +3,7 @@ component accessors=true {
     property name="pluginManager";
     property name="settingsManager";
     property name="beanFactory";
+    property name="pluginConfig";
 
     public function getSite(required siteID) {
         return getSettingsManager().getSite(siteID);
@@ -52,6 +53,10 @@ component accessors=true {
         } else {
             return "";
         }
+    }
+
+    public function getPluginPath(path='') {
+        return getConfigBean().getContext() & '/plugins/' & getPluginConfig().getDirectory() & path;
     }
 
 }

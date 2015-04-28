@@ -1,6 +1,5 @@
 component accessors=true {
-    property name="PluginConfig";
-    property name="ConfigBean";
+    property name="Utilities";
 
     public function getAssetPath(required asset) {
         if (usingWebpackDevServer()) {
@@ -22,12 +21,12 @@ component accessors=true {
         if (usingWebpackDevServer()) {
             return "http://localhost:8080/dist/";
         } else {
-            return '#getConfigBean().getContext()#/plugins/#getPluginConfig().getDirectory()#/client/dist/';
+            return getUtilities().getPluginPath('/client/dist/');
         }
     }
 
-    private function getManifestPath() {
-        return "../client/dist/manifest.json";
+    public function getManifestPath() {
+        return getUtilities().getPluginPath('/client/dist/manifest.json');
     }
 
 }

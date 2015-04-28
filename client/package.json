@@ -2,21 +2,21 @@
   "name": "MuraElasticsearch",
   "private": true,
   "devDependencies": {
-    "babel-core": "4.7.4",
-    "babel-loader": "4.1.0",
+    "babel-core": "^5.1.9",
+    "babel-loader": "^5.0.0",
     "css-loader": "~0.10.1",
     "exports-loader": "~0.6.2",
     "expose-loader": "~0.6.0",
     "imports-loader": "~0.6.3",
-    "lodash": "~2.4.1",
-    "react": "0.13.0",
+    "lodash": "^3.7.0",
+    "react": "^0.13.1",
     "react-hot-loader": "1.2.5",
     "reflux": "~0.2.7",
     "sass-loader": "~0.4.2",
     "style-loader": "~0.10.1",
     "superagent": "^1.2.0",
-    "webpack": "1.7.2",
-    "webpack-dev-server": "1.7.0"
+    "webpack": "^1.8.5",
+    "webpack-dev-server": "^1.8.0"
   },
   "dependencies": {}
 }

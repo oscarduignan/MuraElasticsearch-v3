@@ -1,3 +1,4 @@
+/* TODO need some csrf stuff in here? */
 component {
 
     remote function getElasticsearchStatus(required siteid) returnFormat="json" {

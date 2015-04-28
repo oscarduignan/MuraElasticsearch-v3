@@ -19,18 +19,15 @@ module.exports = {
     },
     resolve: {
         extensions: ['', '.js', '.jsx'],
+        root: [
+            path.join(context, 'src', 'js'),
+            path.join(context, 'src', 'sass'),
+        ]
     },
     module: {
         loaders: [
-            {
-                test: /\.jsx?$/,
-                include: path.join(context, 'src', 'js'),
-                loaders: ['react-hot', 'babel'],
-            },
-            {
-                test: /\.s?css$/,
-                loaders: ['style', 'css', 'sass'],
-            }
+            { test: /\.jsx?$/, loader: 'react-hot!babel', include: path.join(context, 'src', 'js') },
+            { test: /\.s?css$/, loader: 'style!css!sass' },
         ]
     },
     plugins: [

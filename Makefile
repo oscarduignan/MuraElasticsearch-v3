@@ -12,7 +12,7 @@ install_build_dependencies:
 	cd client && bower install
 
 build_release: clean install_build_dependencies
-	client/node_modules/.bin/webpack --config client/webpack/dev.config.js -p
+	client/node_modules/.bin/webpack --config client/webpack/release.config.js
 	cd .. && zip -r MuraElasticsearch/plugin.zip \
 					MuraElasticsearch/model \
 					MuraElasticsearch/client/dist \
@@ -21,5 +21,6 @@ build_release: clean install_build_dependencies
 					MuraElasticsearch/migrations \
 					MuraElasticsearch/MuraElasticsearch.cfc \
 					MuraElasticsearch/EventHandler.cfc \
+					MuraElasticsearch/API.cfc \
 					MuraElasticsearch/LICENSE \
 					MuraElasticsearch/index.cfm
