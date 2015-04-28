@@ -1,5 +1,5 @@
 import React from 'react';
-import ElasticsearchStatus from './ElasticsearchStatus';
+import ElasticsearchStatus from 'ElasticsearchStatus';
 
 export default class Header extends React.Component {
     render() {

@@ -32,3 +32,5 @@ maybe can provide an example replacement search display object
     </cfsavecontent>
     #application.pluginManager.renderAdminTemplate(body=body, pageTitle="MuraElasticsearch")#
 </cfoutput>
+
+<cfhtmlhead text='<meta name="csrf-token" content="#hash(session.mura.csrfsecretkey)#">'>

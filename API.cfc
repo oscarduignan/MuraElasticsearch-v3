@@ -1,9 +1,8 @@
-/* TODO need some csrf stuff in here? */
 component {
 
     remote function getElasticsearchStatus(required siteid) returnFormat="json" {
+        if (not validCSRFToken()) return badToken(); // don't need for this request but using as a test
         if (not siteAdminOrSuperAdmin(siteid)) return forbidden();
-
         return getPlugin().getStatus(siteid);
     }
 
@@ -16,9 +15,28 @@ component {
         return muraScope;
     }
 
-    private function forbidden(message='') {
-        getPageContext().getResponse().setStatus(403, 'Forbidden');
-        return len(message) ? {'message'=message} : '';
+    private function validCSRFToken() {
+        // more relaxed csrf than built in mura one - per session rather than per request
+        // built off the back of the built in mura csrf protection
+        var headers = getHTTPRequestData().headers;
+        return (
+            isDefined("session.mura.csrfsecretkey")
+            and structKeyExists(headers, "X-CSRF-Token")
+            and (hash(session.mura.csrfsecretkey) eq headers["X-CSRF-Token"])
+        );
+    }
+
+    private function error(required code, message='') {
+        getPageContext().getResponse().setStatus(code);
+        return {'error'={'message'=message}};
+    }
+
+    private function badToken() {
+        return error(400, 'Bad token');
+    }
+
+    private function forbidden() {
+        return error(403, 'Forbidden');
     }
 
     private function getPlugin() {
@@ -34,15 +52,11 @@ component {
     }
 
     private function siteAdmin(required memberships, required siteid) {
-        return listFindNoCase(memberships, 'Admin;#getBean('settingsManager').getSite(siteid).getPrivateUserPoolID()#;0') gt 0;
+        return listFind(memberships, 'Admin;#getBean('settingsManager').getSite(siteid).getPrivateUserPoolID()#;0') gt 0;
     }
 
     private function superAdmin(required memberships) {
-        return listFindNoCase(memberships, 'S2') gt 0;
-    }
-
-    private function authenticated() {
-        return getMuraScope().currentUser().isLoggedIn();
+        return listFind(memberships, 'S2') gt 0;
     }
 
 }

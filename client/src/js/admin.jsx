@@ -1,6 +1,8 @@
 import React from 'react';
-import Header from './Header';
-import actions from './actions';
+import Header from 'Header';
+import actions from 'actions';
+
+require('admin.scss');
 
 React.render((
     <div>
