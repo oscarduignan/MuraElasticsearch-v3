@@ -1,0 +1,33 @@
+.service-status__label {
+    text-transform: uppercase;
+}
+
+.service-status__label:before {
+    content: ' ';
+    display: inline-block;
+    margin-right: 5px;
+    width:10px;
+    height:10px;
+    border-radius:5px;
+    line-height:10px;
+    background:#999;
+} 
+
+.service-status--unknown .service-status__label,
+.service-status--loading .service-status__label {
+    color: #999;
+}
+
+.service-status--online .service-status__label:before {
+    background: green;
+}
+.service-status--online .service-status__label {
+    color: green;
+}
+
+.service-status--offline .service-status__label:before {
+    background: red;
+}
+.service-status--offline .service-status__label {
+    color: red;
+}

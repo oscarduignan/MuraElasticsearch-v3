@@ -1,12 +1,12 @@
 import React from 'react';
-import Header from 'Header';
-import actions from 'actions';
+import { ServiceStatus } from 'ServiceStatus';
 
 require('admin.scss');
 
 React.render((
-    <div>
-        <Header/>
-        <button onClick={actions.checkElasticsearchStatus}>refresh status</button>
+    <div style={{position: 'relative'}}>
+        <h1>Mura Elasticsearch Admin</h1>
+
+        <ServiceStatus />
     </div>
 ), document.getElementById('mura-elasticsearch-admin'));

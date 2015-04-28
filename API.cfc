@@ -1,6 +1,10 @@
 component {
 
-    remote function getElasticsearchStatus() returnFormat="json" {
+    remote function getIndexHistory() returnFormat="json" {
+
+    }
+
+    remote function getServiceStatus() returnFormat="json" {
         if (not validCSRFToken()) return badToken(); // don't need for this request but using as a test
         if (not siteAdminOrSuperAdmin(session.siteid)) return forbidden();
         return getPlugin().getStatus(session.siteid);

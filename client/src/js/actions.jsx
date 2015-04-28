@@ -1,6 +1,12 @@
 import Reflux from 'reflux';
+import { getServiceStatus } from 'API';
 
-export default Reflux.createActions([
-    // need to have a way for this to be async so I can show a "loading..." when it's checking the status
-    'checkElasticsearchStatus'
-]);
+var actions = Reflux.createActions({
+    'checkServiceStatus': { asyncResult: true },
+});
+
+actions.checkServiceStatus.listen(function() {
+    getServiceStatus((err, res) => err ? this.failed(err) : this.completed(res.body.status == 200 ? 'online' : 'offline'));
+});
+
+export default actions;
