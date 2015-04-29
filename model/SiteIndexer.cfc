@@ -40,6 +40,8 @@ component accessors=true output=true {
 
                 bulk(siteID, updates, newIndex, getType());
 
+                sleep(2000);
+
                 updateProgress(indexID, {
                     totalIndexed=siteContent.currentIndex()
                 });
@@ -168,7 +170,7 @@ component accessors=true output=true {
             return (
                 getDefaultSiteContentFeed($.event('siteid'))
                     .getIterator()
-                        .setNextN(50)
+                        .setNextN(2)
             );
         }
     }

@@ -1,13 +1,23 @@
 component {
 
-    remote function getIndexHistory() returnFormat="json" {
+    remote function reindexSiteContent() returnFormat="json" {
+        if (not validCSRFToken()) return badToken();
+        if (not siteAdminOrSuperAdmin(session.siteid) or not cgi.request_method == 'post') return forbidden();
+        getPlugin().indexSite(getMuraScope());
+        sleep(5000);
+        return {"success"=true};
+    }
 
+    remote function getMostRecentIndexAll() returnFormat="json" {
+        if (not validCSRFToken()) return badToken();
+        if (not siteAdminOrSuperAdmin(session.siteid)) return forbidden();
+        return getPlugin().getMostRecentIndexAll(session.siteid);
     }
 
     remote function getServiceStatus() returnFormat="json" {
-        if (not validCSRFToken()) return badToken(); // don't need for this request but using as a test
+        if (not validCSRFToken()) return badToken();
         if (not siteAdminOrSuperAdmin(session.siteid)) return forbidden();
-        return getPlugin().getStatus(session.siteid);
+        return getPlugin().getSiteInfo(session.siteid);
     }
 
     /*** utilities ***********************************************************/

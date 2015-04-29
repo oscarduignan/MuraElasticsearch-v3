@@ -1,5 +1,14 @@
 import React from 'react';
+import Reflux from 'reflux';
 import actions from 'actions';
+
+export var HistoryStore = Reflux.createStore({
+    data: [],
+
+    getInitialState() {
+        return this.data;
+    },
+});
 
 export var HistoryViewer = React.createClass({
     render() {

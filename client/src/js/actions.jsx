@@ -7,7 +7,7 @@ var actions = Reflux.createActions({
 });
 
 actions.checkServiceHealth.listen(function() {
-    getServiceStatus((err, res) => err ? this.failed(err, res) : this.completed(res.body.status == 200 ? 'online' : 'offline'));
+    getServiceStatus((err, res) => err ? this.failed(err, res) : this.completed(res));
 });
 
 actions.reindexSiteContent.listen(function() {

@@ -59,4 +59,14 @@ component accessors=true {
         return getConfigBean().getContext() & '/plugins/' & getPluginConfig().getDirectory() & path;
     }
 
+    public function GetQueryRow(required query, required rowNumber) {
+        var i = 0;
+        var rowData = StructNew();
+        var cols    = ListToArray(query.columnList);
+        for (i = 1; i lte ArrayLen(cols); i = i + 1) {
+            rowData[cols[i]] = query[cols[i]][rowNumber];
+        }
+        return rowData;
+    }
+
 }

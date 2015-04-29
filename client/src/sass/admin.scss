@@ -1,5 +1,10 @@
+#mura-elasticsearch-admin * {
+    box-sizing: border-box;
+}
+
 .service-status__label {
     text-transform: uppercase;
+    font-weight: bold;
 }
 
 .service-status__label:before {
@@ -21,6 +26,7 @@
 .service-status--online .service-status__label:before {
     background: #5bb75b;
 }
+
 .service-status--online .service-status__label {
     color: #5bb75b;
 }
@@ -28,6 +34,68 @@
 .service-status--offline .service-status__label:before {
     background: red;
 }
+
 .service-status--offline .service-status__label {
     color: red;
+}
+
+.service-status h3 {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 5px !important;
+    padding: 0;
+}
+
+.service-status {
+    background-color: #f7f7f7;
+    //position: absolute;
+    //top:0;
+    //right:0;
+    float: right;
+    font-size: 14px;
+    display: flex;
+    margin:auto 0;
+}
+
+.service-status>div {
+    display: flex;
+    padding: 10px;
+    flex: 1 auto;
+}
+
+.service-status>div>* {
+    margin:auto;
+}
+
+.service-status>div:last-child {
+    width: 168px;
+    background-color: #DEDEDE;
+}
+
+.service-status>div:first-child {
+    margin: auto 0;
+
+    &>* {
+        flex: 1 auto;
+    }
+
+    &>*:last-child {
+        text-align: right;
+
+        &>button {
+            font-size: 14px;
+            margin-right:5px;
+        }
+    }
+}
+
+.service-status--online>div:first-child>*:first-child,
+.service-status--offline>div:first-child>*:first-child,
+.service-status--loading>div:first-child>*:first-child {
+    min-width: 170px;
+    padding-right: 12px;
+
+    .service-status--unknown & {
+        width: 0;
+    }
 }

@@ -53,7 +53,14 @@ component accessors=true {
         return clients[host];
     }
 
-    private function getHost(required siteID, defaultValue="localhost:9200") {
+    public function getSiteInfo(required siteid) {
+        return {
+            "host"=getHost(siteid),
+            "status"=getClientForSite(siteid).getStatus(ignore="all").status == 200 ? 'online' : 'offline'
+        }; 
+    }
+
+    public function getHost(required siteID, defaultValue="localhost:9200") {
         return getUtilities().getSiteConfig(siteID, "elasticsearchHost", defaultValue);
     }
 

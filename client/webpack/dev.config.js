@@ -4,6 +4,7 @@ var context = path.dirname(__dirname);
 
 module.exports = {
     devtool: 'eval',
+    debug: true,
     context: context,
     entry: {
         admin: [
@@ -35,7 +36,6 @@ module.exports = {
         new webpack.NoErrorsPlugin(),
     ],
     devServer: {
-        contentBase: path.join(context, 'dist'),
         info: false,
         hot: true,
         inline: true,

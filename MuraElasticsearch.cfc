@@ -33,6 +33,10 @@ component accessors=true {
         getBean("SiteIndexStatusService").cancel(siteID);
     }
 
+    public function getMostRecentIndexAll(required siteID) {
+        return getBean("SiteIndexStatusService").getMostRecent(siteID);
+    }
+
     public function getWebpackAssetPath(required asset) {
         return getBean("WebpackService").getAssetPath(asset);
     }
@@ -45,8 +49,8 @@ component accessors=true {
         return getBean("WebpackService").usingWebpackDevServer();
     }
 
-    public function getStatus(required siteid) {
-        return getBean("ElasticsearchService").getClientForSite(siteid).getStatus();
+    public function getSiteInfo(required siteID) {
+        return getBean("ElasticsearchService").getSiteInfo(siteID);
     }
 
     public function getBean(required name) {

@@ -1,10 +1,11 @@
 component accessors=true {
+    property name="Utilities";
     property name="ConfigBean";
     property name="tableName"       default="esSiteIndexLog";
-    property name="statusIndexing"  default=1 setter=false;
-    property name="statusCancelled" default=2 setter=false;
-    property name="statusCompleted" default=3 setter=false;
-    property name="statusFailed"    default=4 setter=false;
+    property name="statusIndexing"  default="indexing" setter=false;
+    property name="statusCancelled" default="cancelled" setter=false;
+    property name="statusCompleted" default="completed" setter=false;
+    property name="statusFailed"    default="failed" setter=false;
 
     function start(required siteID) {
         var indexID = createUUID();
@@ -18,7 +19,7 @@ component accessors=true {
         ")
             .addParam(name="indexID", value=indexID, cfsqltype="cf_sql_varchar")
             .addParam(name="siteID", value=siteID, cfsqltype="cf_sql_varchar")
-            .addParam(name="status", value=getStatusIndexing(), cfsqltype="cf_sql_integer")
+            .addParam(name="status", value=getStatusIndexing(), cfsqltype="cf_sql_varchar")
             .execute();
 
         return indexID;
@@ -42,8 +43,8 @@ component accessors=true {
     function cancel(required siteID) {
         return (
             newQuery("UPDATE #getTableName()# SET status = :cancelled, updatedAt = now(), stoppedAt = now() WHERE siteid = :siteID AND status = :indexing")
-                .addParam(name="indexing", value=getStatusIndexing(), cfsqltype="cf_sql_integer")
-                .addParam(name="cancelled", value=getStatusCancelled(), cfsqltype="cf_sql_integer")
+                .addParam(name="indexing", value=getStatusIndexing(), cfsqltype="cf_sql_varchar")
+                .addParam(name="cancelled", value=getStatusCancelled(), cfsqltype="cf_sql_varchar")
                 .addParam(name="siteID", value=siteID, cfsqltype="cf_sql_varchar")
                 .execute()
         );
@@ -59,6 +60,16 @@ component accessors=true {
         );
     }
 
+    function getMostRecent(required siteID) {
+        return getUtilities().getQueryRow(
+            // todo make this limit work with mssql or mysql
+            newQuery("SELECT * from #getTableName()# WHERE siteid = :siteID ORDER BY startedAt desc LIMIT 1")
+                .addParam(name="siteID", value=siteID, cfsqltype="cf_sql_varchar")
+                .execute()
+                .getResult()
+        , 1);
+    }
+
     function complete(required indexID) {
         return update(indexID, {status=getStatusCompleted(), stoppedAt=now()});
     }
@@ -71,7 +82,7 @@ component accessors=true {
         return (
             newQuery("SELECT indexID from #getTableName()# WHERE siteid = :siteID AND status = :status")
                 .addParam(name="siteID", value=siteID, cfsqltype="cf_sql_varchar")
-                .addParam(name="status", value=getStatusIndexing(), cfsqltype="cf_sql_integer")
+                .addParam(name="status", value=getStatusIndexing(), cfsqltype="cf_sql_varchar")
                 .execute()
                 .getResult()
         ).recordCount gt 0;
@@ -81,7 +92,7 @@ component accessors=true {
         return (
             newQuery("SELECT indexID from #getTableName()# WHERE indexid = :indexID AND status = :status")
                 .addParam(name="indexID", value=indexID, cfsqltype="cf_sql_varchar")
-                .addParam(name="status", value=getStatusCancelled(), cfsqltype="cf_sql_integer")
+                .addParam(name="status", value=getStatusCancelled(), cfsqltype="cf_sql_varchar")
                 .execute()
                 .getResult()
         ).recordCount gt 0;

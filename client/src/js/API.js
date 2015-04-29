@@ -22,6 +22,22 @@ export function getIndexHistory(callback) {
         .end(ErrorStore.handleError(callback));
 }
 
+export function getMostRecentIndexAll(callback) {
+    return request
+        .get(API_URL)
+        .set('X-CSRF-Token', token)
+        .query({method: 'getMostRecentIndexAll', queryFormat: 'column'})
+        .end(ErrorStore.handleError(callback));
+}
+
+export function reindexSiteContent(callback) {
+    return request
+        .post(API_URL)
+        .set('X-CSRF-Token', token)
+        .query({method: 'reindexSiteContent'})
+        .end(ErrorStore.handleError(callback));
+}
+
 export var ErrorStore = Reflux.createStore({
     errors: [],
 
