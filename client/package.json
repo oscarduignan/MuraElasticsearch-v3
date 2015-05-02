@@ -4,6 +4,7 @@
   "devDependencies": {
     "babel-core": "^5.1.9",
     "babel-loader": "^5.0.0",
+    "classnames": "^1.2.2",
     "css-loader": "~0.10.1",
     "exports-loader": "~0.6.2",
     "expose-loader": "~0.6.0",
@@ -11,6 +12,7 @@
     "lodash": "^3.7.0",
     "react": "^0.13.1",
     "react-hot-loader": "1.2.5",
+    "react-router": "^0.13.3",
     "reflux": "~0.2.7",
     "sass-loader": "~0.4.2",
     "style-loader": "~0.10.1",

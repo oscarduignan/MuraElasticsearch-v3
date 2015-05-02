@@ -1,6 +1,7 @@
 component accessors=true {
     property name="BeanFactory";
     property name="Utilities";
+    property name="SiteIndexStatusService";
 
     this.DATE_FORMAT = "yyyy-MM-dd";
     this.DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
@@ -53,11 +54,19 @@ component accessors=true {
         return clients[host];
     }
 
-    public function getSiteInfo(required siteid) {
+    public function getStatus(required siteid, historySince) {
+        var stats = getClientForSite(siteid).getStats(index=siteid, stats="docs", ignore="all");
+        var online = (not stats.hasErrors()) or stats.is404();
         return {
             "host"=getHost(siteid),
-            "status"=getClientForSite(siteid).getStatus(ignore="all").status == 200 ? 'online' : 'offline'
-        }; 
+            "status"=online ? "online" : "offline",
+            "size"=online ? stats.toJSON()["_all"]["total"]["docs"]["count"] : "",
+            "history"=getReindexHistory(siteid=arguments.siteid, since=arguments.historySince)
+        };
+    }
+
+    public function getReindexHistory(required siteid, since) {
+        return getSiteIndexStatusService().getHistory(argumentCollection=arguments);
     }
 
     public function getHost(required siteID, defaultValue="localhost:9200") {

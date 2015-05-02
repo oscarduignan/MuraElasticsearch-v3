@@ -1,101 +1,137 @@
+#mura-elasticsearch-admin,
+#mura-elasticsearch-admin button {
+    font-size: 14px;
+}
+
+#mura-elasticsearch-admin dt,
+#mura-elasticsearch-admin dd {
+    margin-bottom: 15px;
+}
+
 #mura-elasticsearch-admin * {
     box-sizing: border-box;
 }
 
-.service-status__label {
+.mes-details__status {
     text-transform: uppercase;
     font-weight: bold;
 }
 
-.service-status__label:before {
+.mes-details__status:before {
     content: ' ';
     display: inline-block;
     margin-right: 5px;
-    width:10px;
-    height:10px;
-    border-radius:5px;
+    width:11px;
+    height:11px;
+    border-radius:5.5px;
     line-height:10px;
     background:#999;
 } 
 
-.service-status--unknown .service-status__label,
-.service-status--loading .service-status__label {
+.mes-details__status {
     color: #999;
 }
 
-.service-status--online .service-status__label:before {
+.mes-details__status--online:before {
     background: #5bb75b;
 }
 
-.service-status--online .service-status__label {
+.mes-details__status--online {
     color: #5bb75b;
 }
 
-.service-status--offline .service-status__label:before {
+.mes-details__status--offline:before {
     background: red;
 }
 
-.service-status--offline .service-status__label {
+.mes-details__status--offline {
     color: red;
 }
 
-.service-status h3 {
-    font-weight: bold;
-    font-size: 14px;
-    margin-bottom: 5px !important;
+.mes-index-details th {
+    width: 50%;
+}
+
+.mes-index-history__started {
+    width: 50%;
+}
+
+.mes-index-history__status {
+    width: 50%;
+}
+
+.mes-index-actions {
+    list-style: none;
+    margin: 0;
     padding: 0;
+
+    & li {
+        margin-bottom: 15px;
+    }
 }
 
-.service-status {
-    background-color: #f7f7f7;
-    //position: absolute;
-    //top:0;
-    //right:0;
-    float: right;
-    font-size: 14px;
-    display: flex;
-    margin:auto 0;
-}
-
-.service-status>div {
-    display: flex;
-    padding: 10px;
-    flex: 1 auto;
-}
-
-.service-status>div>* {
-    margin:auto;
-}
-
-.service-status>div:last-child {
-    width: 168px;
-    background-color: #DEDEDE;
-}
-
-.service-status>div:first-child {
+.mes-search-form {
     margin: auto 0;
 
-    &>* {
-        flex: 1 auto;
+    & .input-append {
+        margin-bottom: 0;
     }
+}
 
-    &>*:last-child {
-        text-align: right;
+input[type="text"].mes-search-form__text {
+    line-height: 18px;
+    padding: 4px; 
+    font-size: 14px;
+    height: auto;
+}
 
-        &>button {
-            font-size: 14px;
-            margin-right:5px;
+.mes-search-form__tip {
+    display: block;
+    position: absolute;
+    margin-top: 5px;
+    font-size: 0.9em;
+    color: #999;
+}
+
+.mes-admin__header {
+    display: flex;
+    position: relative;
+    height: 60px;
+
+    & h1 {
+        flex: 1;
+        margin: auto 0;
+
+        & a {
+            color: #5bb75b !important;
+            text-decoration: none;
         }
     }
 }
 
-.service-status--online>div:first-child>*:first-child,
-.service-status--offline>div:first-child>*:first-child,
-.service-status--loading>div:first-child>*:first-child {
-    min-width: 170px;
-    padding-right: 12px;
+.mes-admin__content {
+    margin-top: 14px;
+}
 
-    .service-status--unknown & {
-        width: 0;
-    }
+.mes-admin__footer {
+    color: #999;
+    text-align: center;
+    margin-top: 70px;
+    font-size: 0.9em;
+}
+
+.mes-reindex .progress-bar {
+    background-color: #B0EDB0;
+}
+
+.mes-reindex--completed .progress-bar {
+    background-color: #5bb75b;
+}
+
+.mes-reindex--failed .progress-bar {
+    background-color: rgb(215, 120, 120);
+}
+
+.mes-reindex--cancelled .progress-bar{
+    background-color: orange;
 }

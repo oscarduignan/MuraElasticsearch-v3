@@ -60,6 +60,29 @@ component accessors=true {
         );
     }
 
+    function getHistory(required siteID, since) {
+        var query = newQuery("
+            SELECT * FROM #getTableName()#
+            WHERE siteid = :siteID
+            #isDefined("arguments.since") ? "AND startedAt >= :since" : ""#
+            ORDER BY startedAt desc
+        ").addParam(name="siteID", value=siteID, cfsqltype="cf_sql_varchar");
+
+        if (isDefined("arguments.since")) {
+            query.addParam(name="since", value=parseDateTime(arguments.since), cfsqltype="cf_sql_timestamp");
+        }
+
+        var results = query.execute().getResult();
+        var resultsArray = [];
+
+        for (var i=1; i<results.recordCount; i++) {
+            arrayAppend(resultsArray, getUtilities().getQueryRow(results, i));
+        }
+
+        return resultsArray;
+    }
+
+    /*
     function getMostRecent(required siteID) {
         return getUtilities().getQueryRow(
             // todo make this limit work with mssql or mysql
@@ -69,6 +92,7 @@ component accessors=true {
                 .getResult()
         , 1);
     }
+    */
 
     function complete(required indexID) {
         return update(indexID, {status=getStatusCompleted(), stoppedAt=now()});
@@ -103,9 +127,9 @@ component accessors=true {
     }
 
     private function getSQLType(required param) {
-        if (isDate(param)) {
+        if (isDate(arguments.param)) {
             return "cf_sql_timestamp";
-        } else if (isNumeric(param)) {
+        } else if (isNumeric(arguments.param)) {
             return "cf_sql_integer";
         } else {
             return "cf_sql_varchar";

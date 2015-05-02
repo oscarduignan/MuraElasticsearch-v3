@@ -4,20 +4,13 @@ component {
         if (not validCSRFToken()) return badToken();
         if (not siteAdminOrSuperAdmin(session.siteid) or not cgi.request_method == 'post') return forbidden();
         getPlugin().indexSite(getMuraScope());
-        sleep(5000);
         return {"success"=true};
     }
 
-    remote function getMostRecentIndexAll() returnFormat="json" {
+    remote function getServiceStatus(historySince) returnFormat="json" {
         if (not validCSRFToken()) return badToken();
         if (not siteAdminOrSuperAdmin(session.siteid)) return forbidden();
-        return getPlugin().getMostRecentIndexAll(session.siteid);
-    }
-
-    remote function getServiceStatus() returnFormat="json" {
-        if (not validCSRFToken()) return badToken();
-        if (not siteAdminOrSuperAdmin(session.siteid)) return forbidden();
-        return getPlugin().getSiteInfo(session.siteid);
+        return getPlugin().getStatus(session.siteid, arguments.historySince);
     }
 
     /*** utilities ***********************************************************/

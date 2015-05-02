@@ -12,6 +12,18 @@ component accessors=true {
         return makeHttpRequest(method="get", url=createURL(), ignore="404").toJSON();
     }
 
+    function getStats(
+        index="",
+        stats="",
+        ignore=""
+    ) {
+        return makeHttpRequest(
+            method="get",
+            url=createUrl(index, "_stats", stats),
+            ignore=ignore
+        );
+    }
+
     function search(
         required body,
         index="",

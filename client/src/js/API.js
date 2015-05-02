@@ -6,27 +6,15 @@ import update from 'react/lib/update'
 
 var API_URL = 'API.cfc';
 
-export function getServiceStatus(callback) {
-    return request
-        .get(API_URL)
-        .set('X-CSRF-Token', token)
-        .query({method: 'getServiceStatus'})
-        .end(ErrorStore.handleError(callback));
-}
+export function getServiceStatus(historySince, callback) {
+    var query = {method: 'getServiceStatus'};
 
-export function getIndexHistory(callback) {
-    return request
-        .get(API_URL)
-        .set('X-CSRF-Token', token)
-        .query({method: 'getIndexHistory'})
-        .end(ErrorStore.handleError(callback));
-}
+    if (historySince) query.historySince = historySince;
 
-export function getMostRecentIndexAll(callback) {
     return request
         .get(API_URL)
         .set('X-CSRF-Token', token)
-        .query({method: 'getMostRecentIndexAll', queryFormat: 'column'})
+        .query(query)
         .end(ErrorStore.handleError(callback));
 }
 

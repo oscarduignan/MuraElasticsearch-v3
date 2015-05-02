@@ -2,12 +2,12 @@ import Reflux from 'reflux';
 import { getServiceStatus, reindexSiteContent } from 'API';
 
 var actions = Reflux.createActions({
-    'checkServiceHealth': { asyncResult: true },
+    'getServiceStatus': { asyncResult: true },
     'reindexSiteContent': { asyncResult: true },
 });
 
-actions.checkServiceHealth.listen(function() {
-    getServiceStatus((err, res) => err ? this.failed(err, res) : this.completed(res));
+actions.getServiceStatus.listen(function(historySince) {
+    getServiceStatus(historySince, (err, res) => err ? this.failed(err, res) : this.completed(res));
 });
 
 actions.reindexSiteContent.listen(function() {
