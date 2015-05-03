@@ -13,6 +13,17 @@ component {
         return getPlugin().getStatus(session.siteid, arguments.historySince);
     }
 
+    remote function search(q, siteid) returnFormat="json" {
+        var siteid = isDefined("arguments.siteid") ? arguments.siteid : session.siteid;
+        var search = getPlugin().search(siteid, arguments.q);
+        if (search.hasErrors()) {
+            return {"success"=false};
+        } else {
+            var response = search.toJSON();
+            return {"success"=true, "total"=response.hits.total, "hits"=response.hits.hits, "facets"=response.facets};
+        }
+    }
+
     /*** utilities ***********************************************************/
 
     private function getMuraScope() {

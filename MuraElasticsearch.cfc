@@ -45,6 +45,10 @@ component accessors=true {
         return getBean("WebpackService").usingWebpackDevServer();
     }
 
+    public function search(required siteid) {
+        return getBean("ElasticsearchService").search(argumentCollection=arguments);
+    }
+
     public function getStatus(required siteID, historySince) {
         return getBean("ElasticsearchService").getStatus(argumentCollection=arguments);
     }

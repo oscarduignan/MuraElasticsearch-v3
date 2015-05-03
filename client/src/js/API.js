@@ -6,6 +6,13 @@ import update from 'react/lib/update'
 
 var API_URL = 'API.cfc';
 
+export function search(q, from, size, callback) {
+    return request
+        .get(API_URL)
+        .query({method: 'search', q: q, from: from, size: size})
+        .end(ErrorStore.handleError(callback));
+}
+
 export function getServiceStatus(historySince, callback) {
     var query = {method: 'getServiceStatus'};
 

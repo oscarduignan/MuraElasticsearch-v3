@@ -3,7 +3,6 @@ component accessors=true {
     property name="Utilities";
     property name="ConfigBean";
     property name="BeanFactory";
-    property name="type" default="muraContent";
 
     public function updateContent(required content, required $) {
         if (not content.getApproved()) return;
@@ -72,6 +71,7 @@ component accessors=true {
             "title"=content.getTitle(),
             "type"=content.getType(),
             "subType"=content.getSubType(),
+            "typeAndSubType"=content.getType() & ">" & content.getSubType(),
             "body"=content.getBody(),
             "summary"=content.getSummary(),
             "file"=getAssociatedFileAsBase64(content),
@@ -107,6 +107,10 @@ component accessors=true {
                     substring=newFilename
                 )
         );
+    }
+
+    private function getType() {
+        return getElasticsearchService().getContentType();
     }
 
     private function formatDatetime(required datetime) {

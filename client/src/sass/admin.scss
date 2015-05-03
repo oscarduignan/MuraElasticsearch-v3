@@ -1,3 +1,7 @@
+#mura-elasticsearch-admin {
+    line-height:1.5;
+}
+
 #mura-elasticsearch-admin,
 #mura-elasticsearch-admin button {
     font-size: 14px;
@@ -134,4 +138,32 @@ input[type="text"].mes-search-form__text {
 
 .mes-reindex--cancelled .progress-bar{
     background-color: orange;
+}
+
+.mes-search__results {
+    border-top: 1px solid #EFEFEF;
+    margin-top: 15px;
+}
+
+.mes-search-result {
+    margin: 15px 0;
+}
+
+.mes-search-result__meta {
+    font-size:0.9em;
+
+    & strong {
+        text-transform: capitalize;
+    }
+}
+
+.mes-search__back {
+    margin: 15px 0;
+
+    & a {
+        padding: 5px 8px;
+        background-color: #EEE;
+        border-radius: 5px;
+        text-decoration: none;
+    }
 }

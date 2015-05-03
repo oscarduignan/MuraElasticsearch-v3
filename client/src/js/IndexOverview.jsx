@@ -116,7 +116,10 @@ export var IndexOverview = React.createClass({
                 <dt>Indexing operations</dt>
                 <dd>
                     <ul className="mes-index-actions">
-                        <li><button className="btn" onClick={actions.reindexSiteContent}>Reindex site content</button></li>
+                        <li><button className="btn" onClick={() => {
+                            actions.reindexSiteContent();
+                            this.checkForUpdates();
+                        }}>Reindex site content</button></li>
                     </ul>
                 </dd>
                 <dt>Reindex history</dt>
@@ -128,6 +131,7 @@ export var IndexOverview = React.createClass({
                         </tr>
                         {history && history.length ? history.slice(0, visibleHistory).map(entry => {
                             var { STARTEDAT, TOTALINDEXED, TOTALTOINDEX, STATUS } = entry;
+                            if (STATUS == "failed") console.log(entry);
                             return (
                                 <tr className={cx({
                                     'mes-reindex': true,

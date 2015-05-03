@@ -2,6 +2,7 @@ component accessors=true {
     property name="BeanFactory";
     property name="Utilities";
     property name="SiteIndexStatusService";
+    property name="contentType" default="muraContent";
 
     this.DATE_FORMAT = "yyyy-MM-dd";
     this.DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
@@ -52,6 +53,20 @@ component accessors=true {
             clients[host] = getBeanFactory().getBean("ElasticsearchClient").setHost(host);
 
         return clients[host];
+    }
+
+    public function search(required siteid, q="", from=0, size=10) {
+        return getClientForSite(siteid).search({
+            'query'={
+                'match_all'={}
+            },
+            'facets'={
+                'tags'={'terms'={'field'='tags', 'size'=10}},
+                'types'={'terms'={'field'='typeAndSubType'}}
+            },
+            'from'=from,
+            'size'=size
+        }, siteid, getContentType());
     }
 
     public function getStatus(required siteid, historySince) {

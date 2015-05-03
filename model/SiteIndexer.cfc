@@ -92,6 +92,7 @@ component accessors=true output=true {
                         "title": { "type": "string" },
                         "type": { "type": "string", "index": "not_analyzed" },
                         "subType": { "type": "string", "index": "not_analyzed" },
+                        "typeAndSubType": { "type": "string", "index": "not_analyzed" },
                         "summary": { "type": "string" },
                         "body": { "type": "string" },
                         "file": {
@@ -193,7 +194,6 @@ component accessors=true output=true {
             details["message"]      = exception.message;
             details["detail"]       = exception.detail;
             details["extendedInfo"] = exception.extendedInfo;
-            details["code"]         = exception.code;
         }
 
         return getSiteIndexStatusService().fail(indexID, details);
@@ -220,7 +220,7 @@ component accessors=true output=true {
     }
 
     private function getType() {
-        return getContentIndexer().getType();
+        return getElasticsearchService().getContentType();
     }
 
     private function bulk(required siteID, required actions, required index, required type) {
