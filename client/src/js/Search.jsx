@@ -6,6 +6,33 @@ import pick from 'lodash/object/pick';
 import update from 'react/lib/update';
 import moment from 'moment';
 
+export var SearchOptionsStore = Reflux.createStore({
+    data: {},
+
+    getInitialState() {
+        return this.data;
+    },
+
+    init() {
+        this.listenTo(actions.updateQuery, (q) => {
+            this.data = {
+                q: q
+            };
+            this.trigger(this.data);
+            // this should not be debounced really should it
+            // and when clicking this it should stop you
+            // clicking any filters.
+        });
+
+        this.listenTo(actions.toggleFilter, (type, filter) => {
+            this.data = update(this.data, {
+                $merge: { [type]: update(this.data[type]||{}, {$merge: { [filter]: 1-((this.data[type]||{})[filter]||0) } } ) }
+            });
+            this.trigger(this.data);
+        });
+    }
+});
+
 export var SearchResultsStore = Reflux.createStore({
     data: {
         inProgress: false
@@ -16,22 +43,21 @@ export var SearchResultsStore = Reflux.createStore({
     },
 
     init() {
-        this.listenTo(actions.search, (q) => {
-            this.data = {
-                q: q,
-                inProgress: true
-            };
+        this.listenTo(SearchOptionsStore, (options) => {
+            actions.debouncedSearch(options);
+            this.data = update(this.data, {
+                $merge: {
+                    inProgress: true,
+                }
+            });
             this.trigger(this.data);
-        });
+        })
 
         this.listenTo(actions.search.completed, (res) => {
             this.data = update(this.data, {
                 $merge: {
                     inProgress: false,
-                    hits: res.body.hits,
-                    facets: res.body.facets,
-                    success: res.body.success,
-                    total: res.body.total
+                    response: res.body
                 }
             });
             this.trigger(this.data);
@@ -50,6 +76,7 @@ export var SearchForm = React.createClass({
 
     handleSubmit(event) {
         event.preventDefault();
+        actions.updateQuery(this.state.q);
         this.context.router.transitionTo('search', false, {q: this.state.q});
     },
 
@@ -72,11 +99,59 @@ export var SearchForm = React.createClass({
     }
 });
 
+export var FilterList = React.createClass({
+    render() {
+        var { aggregations } = this.props;
+        return (
+            <div className="mes-filter-list">
+                {Object.keys(aggregations).map(aggregation => {
+                    return <Filter label={aggregation} buckets={aggregations[aggregation].buckets}/>;
+                })}
+            </div>
+        )
+    }
+});
+
+export var Filter = React.createClass({
+    render() {
+        var { label, buckets } = this.props;
+        return (
+            <div className="mes-filter">
+                <h3>{label}</h3>
+                <ul>
+                    {buckets.map(bucket => <Bucket key={bucket.key} bucket={bucket} type={label}/>)}
+                </ul>
+            </div>
+        );
+    }
+});
+
+export var Bucket = React.createClass({
+    handleChange() {
+        actions.toggleFilter(this.props.type, this.props.bucket.key);
+    },
+
+    // TODO get state from the filter store!
+
+    render() {
+        var { bucket } = this.props;
+        return (
+            <li>
+                <label>
+                    <input type="checkbox" onChange={this.handleChange} />
+                    {bucket.key} ({bucket.doc_count})
+                </label>
+            </li>
+        );
+    }
+});
+
 export var SearchResults = React.createClass({
     mixins: [Reflux.connect(SearchResultsStore, 'search')],
 
     componentDidMount() {
-        actions.search.triggerAsync(this.context.router.getCurrentQuery().q);
+        // TODO add filters to the URL too
+        actions.updateQuery(this.context.router.getCurrentQuery().q);
     },
 
     contextTypes: {
@@ -84,20 +159,21 @@ export var SearchResults = React.createClass({
     },
 
     render() {
-        var { inProgress, hits, facets, success, total, q } = this.state.search;
-        console.log(facets);
+        var { inProgress, response } = this.state.search;
+
         return (
             <div className="mes-search">
                 <div className="mes-search__back">
                     <Link to="/">&lt; Back to index overview</Link>
                 </div>
+                {response ? <FilterList aggregations={response.aggregations}/> : false}
                 <div className="mes-search__summary">
-                    {success
-                        ? <span>Viewing the first 10 of the {total} result(s) found for your search for "{q}".</span>
-                        : <span>Searching, please wait!</span>}
+                    {response
+                        ? <span>Viewing the first 10 results of the {response.hits.total} found for your search</span>
+                        : false}
                 </div>
                 <div className="mes-search__results">
-                    {hits ? hits.map(result => <SearchResult result={result} />) : false}
+                    {response ? response.hits.hits.map(result => <SearchResult result={result} />) : false}
                 </div>
             </div>
         );

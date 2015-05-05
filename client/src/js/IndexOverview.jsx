@@ -6,6 +6,7 @@ import update from 'react/lib/update';
 import find from 'lodash/collection/find';
 import sortBy from 'lodash/collection/sortBy';
 import unique from 'lodash/array/unique';
+import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
 
 var IsLoadingStore = Reflux.createStore({
     getInitialState() {
@@ -125,36 +126,41 @@ export var IndexOverview = React.createClass({
                 <dt>Reindex history</dt>
                 <dd style={{textAlign:"center"}}>
                     <table className="table table-bordered mes-index-history">
-                        <tr>
-                            <th className="mes-index-history__started">started</th>
-                            <th className="mes-index-history__status">status</th>
-                        </tr>
-                        {history && history.length ? history.slice(0, visibleHistory).map(entry => {
-                            var { STARTEDAT, TOTALINDEXED, TOTALTOINDEX, STATUS } = entry;
-                            if (STATUS == "failed") console.log(entry);
-                            return (
-                                <tr className={cx({
-                                    'mes-reindex': true,
-                                    'mes-reindex--failed': STATUS == 'failed',
-                                    'mes-reindex--completed': STATUS == 'completed',
-                                    'mes-reindex--cancelled': STATUS == 'cancelled',
-                                })}>
-                                    <td>{STARTEDAT}</td>
-                                    <td>
-                                        <div className="progress" style={{position: 'relative', width: '100%', minWidth: '140px', margin: 'auto', height: '24px', lineHeight: '24px'}}>
-                                            <div style={{position: 'absolute', textAlign: 'center', width: '100%', color: '#333'}}>
-                                                {TOTALTOINDEX ? ((TOTALINDEXED ? TOTALINDEXED : 0) + " of " + TOTALTOINDEX) : false}
-                                            </div>
-                                            {TOTALINDEXED ? (
-                                                <div className="progress-bar" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style={{width: ((TOTALINDEXED/TOTALTOINDEX)*100)+"%", textAlign: 'center', height: '100%'}}>
-                                                    &nbsp;
+                        <thead>
+                            <tr>
+                                <th className="mes-index-history__started">started</th>
+                                <th className="mes-index-history__status">status</th>
+                            </tr>
+                        </thead>
+                        <ReactCSSTransitionGroup component="tbody" transitionName="mes-reindex">
+                            {history && history.length ? history.slice(0, visibleHistory).map(entry => {
+                                var { INDEXID, STARTEDAT, TOTALINDEXED, TOTALTOINDEX, STATUS } = entry;
+                                if (STATUS == "failed") console.log(entry);
+                                return (
+                                    <tr key={INDEXID} className={cx({
+                                        'mes-reindex': true,
+                                        'mes-reindex--failed': STATUS == 'failed',
+                                        'mes-reindex--completed': STATUS == 'completed',
+                                        'mes-reindex--cancelled': STATUS == 'cancelled',
+                                    })}>
+                                        <td>{STARTEDAT}</td>
+                                        <td>
+                                            <div className="progress" style={{position: 'relative', width: '100%', minWidth: '140px', margin: 'auto', height: '24px', lineHeight: '24px'}}>
+                                                <div style={{position: 'absolute', textAlign: 'center', width: '100%', color: '#333'}}>
+                                                    {TOTALTOINDEX ? ((TOTALINDEXED ? TOTALINDEXED : 0) + " of " + TOTALTOINDEX) : false}
                                                 </div>
-                                            ) : false}
-                                        </div>
-                                    </td>
-                                </tr>
-                            );
-                        }) : loading ? <tr><td colSpan="2">loading...</td></tr> : false }
+                                                {TOTALINDEXED ? (
+                                                    <div className="progress-bar" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style={{width: ((TOTALINDEXED/TOTALTOINDEX)*100)+"%", textAlign: 'center', height: '100%'}}>
+                                                        &nbsp;
+                                                    </div>
+                                                ) : false}
+                                            </div>
+                                        </td>
+                                    </tr>
+                               );
+                            }) : false }
+                        </ReactCSSTransitionGroup>
+                        {!history || !history.length ? (loading ? <tr><td colSpan="2">loading...</td></tr> : false) : false }
                     </table>
                     {visibleHistory < history.length ? <button className="btn" onClick={() => {
                         this.setState({visibleHistory: visibleHistory + 5});

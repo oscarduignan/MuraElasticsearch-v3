@@ -167,3 +167,11 @@ input[type="text"].mes-search-form__text {
         text-decoration: none;
     }
 }
+
+.mes-reindex-enter.mes-reindex-enter-active {
+    background-color: #FFFF93;
+}
+
+.mes-reindex {
+    transition: background-color 1s ease-out;
+}
