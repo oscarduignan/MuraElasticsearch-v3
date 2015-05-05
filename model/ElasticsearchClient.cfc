@@ -386,7 +386,7 @@ component accessors=true {
 
         var response = new ElasticsearchResponse().setResponse(http.send().getPrefix());
 
-        if (response.hasErrors() and (arguments.ignore != "all" or not listFindNoCase(response.getStatusCode(), arguments.ignore))) {
+        if (response.hasErrors() and not (ignore.equalsIgnoreCase("all") or listFindNoCase(response.getStatusCode(), ignore))) {
             var responseJSON = response.toJSON();
 
             var errorType = (
