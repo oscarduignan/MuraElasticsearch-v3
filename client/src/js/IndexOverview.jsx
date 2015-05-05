@@ -7,6 +7,7 @@ import find from 'lodash/collection/find';
 import sortBy from 'lodash/collection/sortBy';
 import unique from 'lodash/array/unique';
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
+import moment from 'moment';
 
 var IsLoadingStore = Reflux.createStore({
     getInitialState() {
@@ -76,7 +77,7 @@ export var IndexOverview = React.createClass({
 
     componentDidMount() {
         this.checkForUpdates();
-        this.checkForUpdatesInterval = setInterval(this.checkForUpdates, 2000);
+        this.checkForUpdatesInterval = setInterval(this.checkForUpdates, 10000);
     },
 
     componentWillUnmount() {
@@ -132,18 +133,17 @@ export var IndexOverview = React.createClass({
                                 <th className="mes-index-history__status">status</th>
                             </tr>
                         </thead>
-                        <ReactCSSTransitionGroup component="tbody" transitionName="mes-reindex">
+                        <ReactCSSTransitionGroup component="tbody" transitionName="mes-reindex" transitionLeave={false}>
                             {history && history.length ? history.slice(0, visibleHistory).map(entry => {
                                 var { INDEXID, STARTEDAT, TOTALINDEXED, TOTALTOINDEX, STATUS } = entry;
-                                if (STATUS == "failed") console.log(entry);
                                 return (
-                                    <tr key={INDEXID} className={cx({
+                                    <tr key={INDEXID} title={moment(STARTEDAT).fromNow()} className={cx({
                                         'mes-reindex': true,
                                         'mes-reindex--failed': STATUS == 'failed',
                                         'mes-reindex--completed': STATUS == 'completed',
                                         'mes-reindex--cancelled': STATUS == 'cancelled',
                                     })}>
-                                        <td>{STARTEDAT}</td>
+                                        <td>{moment(STARTEDAT).format("MMMM Do YYYY, h:mm:ss a")}</td>
                                         <td>
                                             <div className="progress" style={{position: 'relative', width: '100%', minWidth: '140px', margin: 'auto', height: '24px', lineHeight: '24px'}}>
                                                 <div style={{position: 'absolute', textAlign: 'center', width: '100%', color: '#333'}}>
