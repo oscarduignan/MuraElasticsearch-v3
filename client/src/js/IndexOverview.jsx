@@ -94,7 +94,7 @@ export var IndexOverview = React.createClass({
                     <table className="mes-details table table-bordered">
                         <tr>
                             <th>Host</th>
-                            <td>{loading && !host ? "loading..." : host}</td>
+                            <td>{host ? host : "N/A"}</td>
                         </tr>
                         <tr>
                             <th>Status</th>
@@ -104,13 +104,13 @@ export var IndexOverview = React.createClass({
                                     'mes-details__status--online':  status == "online",
                                     'mes-details__status--offline': status == "offline",
                                 })}>
-                                    {loading && !status ? "loading" : status}
+                                    {status ? status : "N/A"}
                                 </span>
                             </td>
                         </tr>
                         <tr>
                             <th>Content indexed</th>
-                            <td>{loading && !size ? "loading..." : size}</td>
+                            <td>{size ? size : "N/A"}</td>
                         </tr>
                     </table>
                 </dd>
@@ -160,7 +160,6 @@ export var IndexOverview = React.createClass({
                                );
                             }) : false }
                         </ReactCSSTransitionGroup>
-                        {!history || !history.length ? (loading ? <tr><td colSpan="2">loading...</td></tr> : false) : false }
                     </table>
                     {visibleHistory < history.length ? <button className="btn" onClick={() => {
                         this.setState({visibleHistory: visibleHistory + 5});
