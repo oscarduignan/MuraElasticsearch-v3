@@ -147,7 +147,7 @@ export var IndexOverview = React.createClass({
                                         <td>
                                             <div className="progress" style={{position: 'relative', width: '100%', minWidth: '140px', margin: 'auto', height: '24px', lineHeight: '24px'}}>
                                                 <div style={{position: 'absolute', textAlign: 'center', width: '100%', color: '#333'}}>
-                                                    {TOTALTOINDEX ? ((TOTALINDEXED ? TOTALINDEXED : 0) + " of " + TOTALTOINDEX) : false}
+                                                    {STATUS} {TOTALTOINDEX ? "("+(TOTALINDEXED ? TOTALINDEXED : 0) + " of " + TOTALTOINDEX+")" : false}
                                                 </div>
                                                 {TOTALINDEXED ? (
                                                     <div className="progress-bar" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style={{width: ((TOTALINDEXED/TOTALTOINDEX)*100)+"%", textAlign: 'center', height: '100%'}}>
