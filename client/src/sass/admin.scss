@@ -89,12 +89,17 @@ input[type="text"].mes-search-form__text {
     height: auto;
 }
 
+.mes-tip {
+    font-size: 0.9em;
+    font-weight: normal;
+    color: #999;
+}
+
 .mes-search-form__tip {
+    @extend .mes-tip;
     display: block;
     position: absolute;
     margin-top: 5px;
-    font-size: 0.9em;
-    color: #999;
 }
 
 .mes-admin__header {

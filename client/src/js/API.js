@@ -93,7 +93,6 @@ export var ErrorStore = Reflux.createStore({
     handleError(callback) {
         return (err, res) => {
             if (err) this.addError(err, res);
-            console.log(res);
             callback(err, res);
         };
     },

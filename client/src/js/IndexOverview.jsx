@@ -15,9 +15,9 @@ var IsLoadingStore = Reflux.createStore({
     },
 
     init() {
-        this.listenTo(actions.getServiceStatus, ()=> this.trigger(true));
-        this.listenTo(actions.getServiceStatus.failed, ()=> this.trigger(false));
-        this.listenTo(actions.getServiceStatus.completed, ()=> this.trigger(false));
+        this.listenTo(actions.getServiceStatus, _ => this.trigger(true));
+        this.listenTo(actions.getServiceStatus.failed, _ => this.trigger(false));
+        this.listenTo(actions.getServiceStatus.completed, _ => this.trigger(false));
     },
 });
 
@@ -124,7 +124,7 @@ export var IndexOverview = React.createClass({
                         }}>Reindex site content</button></li>
                     </ul>
                 </dd>
-                <dt>Reindex history</dt>
+                <dt>Reindex history <span className="mes-tip">{!loading ? <span>automatically refreshed every 10 seconds, <a style={{cursor: 'pointer'}} onClick={this.checkForUpdates}>check now</a></span> : <span>checking for updates, please wait...</span>}</span></dt>
                 <dd style={{textAlign:"center"}}>
                     <table className="table table-bordered mes-index-history">
                         <thead>
