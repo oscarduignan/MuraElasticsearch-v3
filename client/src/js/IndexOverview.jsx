@@ -69,15 +69,15 @@ export var IndexOverview = React.createClass({
         Reflux.connect(ServiceStatusStore, 'service'),
     ],
 
-    checkForUpdates() {
+    checkForUpdates(delay=0) {
         var { service } = this.state;
         var { history } = service;
-        actions.getServiceStatus(history && history.length > 1 ? history[1]['STARTEDAT'] : undefined);
+        actions.getServiceStatus(history && history.length > 1 ? history[1]['STARTEDAT'] : undefined, delay);
     },
 
     componentDidMount() {
         this.checkForUpdates();
-        this.checkForUpdatesInterval = setInterval(this.checkForUpdates, 10000);
+        this.checkForUpdatesInterval = setInterval(_ => this.checkForUpdates(1000), 10000);
     },
 
     componentWillUnmount() {
@@ -124,7 +124,7 @@ export var IndexOverview = React.createClass({
                         }}>Reindex site content</button></li>
                     </ul>
                 </dd>
-                <dt>Reindex history <span className="mes-tip">{!loading ? <span>automatically refreshed every 10 seconds, <a style={{cursor: 'pointer'}} onClick={this.checkForUpdates}>check now</a></span> : <span>checking for updates, please wait...</span>}</span></dt>
+                <dt>Reindex history <span className="mes-tip">{!loading ? <span>automatically refreshed every 10 seconds, <a style={{cursor: 'pointer'}} onClick={_ => { this.checkForUpdates(1000)}}>check now</a></span> : <span>checking for updates, please wait...</span>}</span></dt>
                 <dd style={{textAlign:"center"}}>
                     <table className="table table-bordered mes-index-history">
                         <thead>

@@ -16,8 +16,8 @@ actions.search.listen(function(options) {
 
 actions.debouncedSearch = debounce(actions.search, 500);
 
-actions.getServiceStatus.listen(function(historySince) {
-    getServiceStatus(historySince, (err, res) => err ? this.failed(err, res) : setTimeout(_ => this.completed(res), 1000));
+actions.getServiceStatus.listen(function(historySince, delay=0) {
+    getServiceStatus(historySince, (err, res) => err ? this.failed(err, res) : setTimeout(_ => this.completed(res), delay));
 });
 
 actions.reindexSiteContent.listen(function() {
