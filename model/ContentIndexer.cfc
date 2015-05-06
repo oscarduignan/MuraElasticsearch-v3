@@ -66,6 +66,10 @@ component accessors=true {
     }
 
     public function getDefaultContentStruct(required content) {
+        var trimmedTags = [];
+        for (var tag in listToArray(content.getTags())) {
+            arrayAppend(trimmedTags, trim(tag));
+        }
         return {
             "contentID"=content.getContentID(),
             "title"=content.getTitle(),
@@ -75,7 +79,7 @@ component accessors=true {
             "body"=content.getBody(),
             "summary"=content.getSummary(),
             "file"=getAssociatedFileAsBase64(content),
-            "tags"=listToArray(content.getTags()),
+            "tags"=trimmedTags,
             "url"=content.getUrl(),
             "created"=formatDatetime(content.getCreated()),
             "lastUpdate"=formatDatetime(content.getLastUpdate()),
