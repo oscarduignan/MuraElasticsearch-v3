@@ -166,12 +166,12 @@ export var SearchResults = React.createClass({
                 <div className="mes-search__back">
                     <Link to="/">&lt; Back to index overview</Link>
                 </div>
-                {response ? <FilterList aggregations={response.aggregations}/> : false}
                 <div className="mes-search__summary">
                     {response
                         ? <span>Viewing the first 10 results of the {response.hits.total} found for your search</span>
                         : false}
                 </div>
+                {response ? <FilterList aggregations={response.aggregations}/> : false}
                 <div className="mes-search__results">
                     {response ? response.hits.hits.map(result => <SearchResult result={result} />) : false}
                 </div>

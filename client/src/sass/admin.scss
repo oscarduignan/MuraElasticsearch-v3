@@ -180,3 +180,38 @@ input[type="text"].mes-search-form__text {
 .mes-reindex {
     transition: background-color 1s ease-out;
 }
+
+.mes-filter-list {
+    /* float: right; */
+    padding: 15px 0 0 15px;
+    width: 200px;
+    margin-left: -215px;
+    float: left;
+}
+
+.mes-filter h3 {
+    font-weight: bold;
+    margin-bottom: 5px !important;
+}
+
+.mes-filter {
+    background-color: #EFEFEF;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    /* border: 1px solid #CCC; */
+}
+
+.mes-filter ul {
+    padding: 0;
+    margin: 0;
+}
+
+.mes-filter li {
+    list-style: none;
+    padding:0;
+}
+
+.mes-filter input[type='checkbox'] {
+    margin-right:5px;
+}
