@@ -127,11 +127,23 @@ component accessors=true output=true {
 
     public function getDefaultSiteContentFeed(required siteID) {
         return (
-            getBeanFactory()
-                .getBean("feed")
+            getBeanFactory().
+                getBean("feed")
                     .setSiteID(siteID)
-                    .setMaxItems(9999)
+                    // give us everything!
+                    .setMaxItems(999999)
+                    // we want stuff even if it's set not to display in the nav
                     .setShowNavOnly(0)
+                    // we don't want stuff that shouldn't be in the search though
+                    .setShowExcludeSearch(0)
+                    // got to set this otherwise you only get content where now() is between displayStart and displayStop
+                    .setLiveOnly(0)
+                    // because we set LiveOnly=0 we set this so we don't get content set to display=false
+                    .addParam(field='Display', condition='!=', criteria=0)
+                    // and we also have to set this because we don't want draft content
+                    .addParam(field='Approved', criteria=1)
+                    // and we set this because we only want the latest revision of content
+                    .setIsActive(1)
         );
     }
 

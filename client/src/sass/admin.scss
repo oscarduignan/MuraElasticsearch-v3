@@ -141,13 +141,18 @@ input[type="text"].mes-search-form__text {
     background-color: rgb(215, 120, 120);
 }
 
+.mes-search__summary {
+    border-bottom: 1px solid #EFEFEF;
+    padding-bottom: 10px;
+}
+
 .mes-reindex--cancelled .progress-bar{
     background-color: orange;
 }
 
 .mes-search__results {
-    border-top: 1px solid #EFEFEF;
     margin-top: 15px;
+    margin-left: 200px;
 }
 
 .mes-search-result {
@@ -182,10 +187,8 @@ input[type="text"].mes-search-form__text {
 }
 
 .mes-filter-list {
-    /* float: right; */
-    padding: 15px 0 0 15px;
+    padding: 15px 15px 0 0;
     width: 200px;
-    margin-left: -215px;
     float: left;
 }
 

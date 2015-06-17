@@ -49,11 +49,7 @@ component accessors=true {
         if (isDefined("arguments.$") and structKeyExists(arguments.$, "getElasticsearchShouldIndex")) {
             return arguments.$.getElasticsearchShouldIndex(content);
         } else {
-            return (
-                content.getIsOnDisplay()
-                and
-                content.getSearchExclude() eq 0
-            );
+            return true;
         }
     }
 

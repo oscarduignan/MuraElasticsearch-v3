@@ -55,6 +55,20 @@ component accessors=true {
         return clients[host];
     }
 
+    public function search(required siteid, q="", from=0, size=10) {
+        return getClientForSite(siteid).search({
+            'query'={
+                'match_all'={}
+            },
+            'aggregations'={
+                'tags'={'terms'={'field'='tags', 'size'=10}},
+                'types'={'terms'={'field'='typeAndSubType'}}
+            },
+            'from'=from,
+            'size'=size
+        }, siteid, getContentType());
+    }
+
     public function getStatus(required siteid, historySince) {
         var stats = getClientForSite(siteid).getStats(index=siteid, stats="docs", ignore="all");
         var online = (not stats.hasErrors()) or stats.is404();
