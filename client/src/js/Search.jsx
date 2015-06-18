@@ -23,13 +23,6 @@ export var SearchOptionsStore = Reflux.createStore({
             // and when clicking this it should stop you
             // clicking any filters.
         });
-
-        this.listenTo(actions.toggleFilter, (type, filter) => {
-            this.data = update(this.data, {
-                $merge: { [type]: update(this.data[type]||{}, {$merge: { [filter]: 1-((this.data[type]||{})[filter]||0) } } ) }
-            });
-            this.trigger(this.data);
-        });
     }
 });
 
@@ -99,53 +92,6 @@ export var SearchForm = React.createClass({
     }
 });
 
-export var FilterList = React.createClass({
-    render() {
-        var { aggregations } = this.props;
-        return (
-            <div className="mes-filter-list">
-                {Object.keys(aggregations).map(aggregation => {
-                    return <Filter label={aggregation} buckets={aggregations[aggregation].buckets}/>;
-                })}
-            </div>
-        )
-    }
-});
-
-export var Filter = React.createClass({
-    render() {
-        var { label, buckets } = this.props;
-        return (
-            <div className="mes-filter">
-                <h3>{label}</h3>
-                <ul>
-                    {buckets.map(bucket => <Bucket key={bucket.key} bucket={bucket} type={label}/>)}
-                </ul>
-            </div>
-        );
-    }
-});
-
-export var Bucket = React.createClass({
-    handleChange() {
-        actions.toggleFilter(this.props.type, this.props.bucket.key);
-    },
-
-    // TODO get state from the filter store!
-
-    render() {
-        var { bucket } = this.props;
-        return (
-            <li>
-                <label>
-                    <input type="checkbox" onChange={this.handleChange} />
-                    {bucket.key} ({bucket.doc_count})
-                </label>
-            </li>
-        );
-    }
-});
-
 export var SearchResults = React.createClass({
     mixins: [Reflux.connect(SearchResultsStore, 'search')],
 
@@ -171,7 +117,6 @@ export var SearchResults = React.createClass({
                         ? <span>Viewing the first 10 results of the {response.hits.total} found for your search</span>
                         : false}
                 </div>
-                {response ? <FilterList aggregations={response.aggregations}/> : false}
                 <div className="mes-search__results">
                     {response ? response.hits.hits.map(result => <SearchResult result={result} />) : false}
                 </div>
