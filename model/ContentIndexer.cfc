@@ -63,10 +63,12 @@ component accessors=true {
 
     public function getDefaultContentStruct(required content) {
         var trimmedTags = [];
+
         for (var tag in listToArray(content.getTags())) {
             arrayAppend(trimmedTags, trim(tag));
         }
-        return {
+
+        var document = {
             "contentID"=content.getContentID(),
             "title"=content.getTitle(),
             "type"=content.getType(),
@@ -81,8 +83,20 @@ component accessors=true {
             "lastUpdate"=formatDatetime(content.getLastUpdate()),
             "filename"=content.getFilename(),
             "metaDesc"=content.getMetaDesc(),
-            "metaKeywords"=content.getMetaKeywords()
+            "metaKeywords"=content.getMetaKeywords(),
+            "approved"=content.getApproved(),
+            "display"=content.getDisplay()
         };
+
+        if (isDate(content.getDisplayStart())) {
+            document["displayStart"] = formatDatetime(content.getDisplayStart());
+        }
+
+        if (isDate(content.getDisplayStop())) {
+            document["displayStop"] = formatDatetime(content.getDisplayStop());
+        }
+
+        return document;
     }
 
     private function getAssociatedFileAsBase64(required content) {

@@ -112,7 +112,11 @@ component accessors=true output=true {
                         "lastUpdate": { "type": "date", "format": "date_time" },
                         "created": { "type": "date", "format": "date_time" },
                         "metaDesc": { "type": "string" },
-                        "metaKeywords": { "type": "string" }
+                        "metaKeywords": { "type": "string" },
+                        "approved": { "type": "string", "index": "not_analyzed" },
+                        "display": { "type": "string", "index": "not_analyzed" },
+                        "displayStart": { "type": "date", "format": "date_time" },
+                        "displayStop": { "type": "date", "format": "date_time" }
                     },
                     "_source": {
                         "excludes": [ "file" ]
@@ -147,6 +151,33 @@ component accessors=true output=true {
         );
     }
 
+    private function getLiveOnlyFilter() {
+        // if you want to index unpublished drafts too so you can search them then
+        // you just need to set the site content feed to not filter out unnapproved
+        // content and then query the index the site's alias points to directly.
+        return {
+            "and": [
+                { "term": { "approved": 1 } },
+                { "or": [
+                    { "term": { "display": 1 } },
+                    { "and": [
+                        { "term": { "display": 2 } },
+                        { "and": [
+                            { "or": [
+                                { "not": { "exists": { "field": "displayStart" } } },
+                                { "range": { "displayStart": { "lte": "now" } } }
+                            ] },
+                            { "or": [
+                                { "not": { "exists": { "field": "displayStop" } } },
+                                { "range": { "displayStop": { "gte": "now" } } }
+                            ] }
+                        ] }
+                    ] }
+                ] }
+            ]
+        };
+    }
+
     private function changeSiteIndex(required siteID, required newIndex) {
         var actions = [];
 
@@ -160,7 +191,7 @@ component accessors=true output=true {
             }
         }
 
-        arrayAppend(actions, { "add"={ "index"=newIndex, "alias"=siteID } });
+        arrayAppend(actions, { "add"={ "index"=newIndex, "alias"=siteID, "filter"=getLiveOnlyFilter() } });
 
         application.elasticsearch = actions;
 

@@ -46,7 +46,11 @@ component accessors=true {
     }
 
     public function searchSite(required siteid, required body, muraContentOnly=true) {
-        return getBean("ElasticsearchService").getClientForSite(siteid).search(body=body, index=siteid, type=(muraContentOnly ? getBean("ElasticsearchService").getContentType() : ""));
+        return getBean("ElasticsearchService").getClientForSite(siteid).search(
+            body=body,
+            index=siteid,
+            type=(muraContentOnly ? getBean("ElasticsearchService").getContentType() : "")
+        );
     }
 
     public function getStatus(required siteID, historySince) {
